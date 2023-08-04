@@ -1,0 +1,63 @@
+---
+title: "Uso de R para la demografía social "
+subtitle: "Ana Ruth Escoto Castillo"
+---
+
+Curso impartido en el semestre 2024-1 
+
+Horario: Jueves	 16:00 a  20:00 horas
+
+Salón: por definir
+
+## Objetivo general: 
+
+Que el estudiantado sea capaz de aplicar conceptos demográficos y estadísticos utilizando el paquete R a fuentes de información mexicanas y mundiales. 
+
+
+## Objetivos por unidad:
+
+### 1.	Introducción a R y Rstudio (4 horas)
+
+*Objetivo: que el estudiantado sea familiarice con la interfase de trabajo y la programación por objetos, del mismo modo que sean capaces de realizar tareas básicas tales como crear un script, un proyecto, objetos, ambientes e instalar paqueterías.*
+
+### 2.	Importación de información y primera revisión de fuentes demográficas (8 horas)
+
+#### a.	Importación de información a R en diferentes formatos
+#### b.	Importación de información de proyecciones de población de Conapo
+#### c.	Revisión de encuestas y ejemplos de importación de datos de acuerdo al tema de cada estudiante
+
+*Objetivo: que el estudiantado sea capaz de importar información desde diferentes formatos (.txt, .csv, .xlsx, .dta, .dbf) a R, así como de exportar sus resultados en estos formatos. Del mismo modo que sean capaces de revisar de manera preliminar los objetos de tipo “data.frame”: funciones “glimpse()”, “skim() de “skimr”, manejo de etiquetas y hacer subconjuntos de información*
+
+### 3.	Revisión de elementos estadísticos básicos desde “tidyverse” (8 horas)
+#### a.	Tabulados con janitor::tabyl() y uso de factores de expansión con pollster::topline(), pollstter::crosstab. Lectura e interpretación de tablas de doble entrada
+#### b.	Estadística descriptiva básica (medidas de tendencia central, dispersión y de posición) con el paquete dplyr
+#### c.	Gráficos univariados y bivariados usando “ggplot2” y extensiones de ggplot
+
+*Objetivo: que el estudiantado sea capaz de realizar análisis estadísticos básicos utilizando las bases de datos más afines a sus temas de investigación*
+
+### 4.	Inferencia y modelos estadísticos con R (16 horas)
+#### a.	Estimaciones por intervalo y diseño complejo muestral
+#### b.	Pruebas de Hipótesis
+#### c.	ANOVA
+#### d.	Modelos de regresión lineal
+#### e.	Introducción a otros modelos generalizados
+
+*Objetivo: que el estudiantado sea capaz de realizar inferencia estadística y modelado de una variable dependiente utilizando las bases de datos más afines a sus temas de investigación.* 
+
+### 5.	Aplicaciones relacionadas a la demografía I (8 horas)
+#### a.	Pirámides de población: crear una función 
+#### b.	Diagramas Lexis
+#### c.	Consultas y descarga de información con paquetes como {IPUMSr}, {WDI}, {InegiR},  {mxmaps}, {wppExplorer} y otras API
+
+*Objetivo: que el estudiantado sea capaz de crear y utilizar funciones específicas para el análisis demográfico, tales como crear pirámides, colocar eventos en el diagrama de Lexis y hacer consultas desde R de fuentes de información*
+
+### 6.	Aplicaciones a la demografía II (8 horas)
+#### a.	Estandarización de tasas y gráficos de crecimiento, manejo de series de tiempo
+#### b.	Paquetes {demography} y {DemoTools}: cálculo de tablas de vida y tasas de mortalidad y fecundidad
+
+*Objetivo: que el estudiantado sea capaz de replicar tablas de vida y tasas de mortalidad utilizando el paquete especializado*
+
+### 7.	R para comunicar resultados con Quarto (4 horas)
+
+*Objetivo: que el estudiantado sea capaz de comprender los elementos básicos para crear documentos desde R utilizando Quarto*
+

@@ -1,0 +1,38 @@
+project:
+  type: website
+  output-dir: "docs"
+
+website:
+  title: "Uso de R para la demografía social"
+  site-url: https://fcpys.github.io/taller_meg/
+  repo-url: https://github.com/fcpys/taller_meg/
+  repo-branch: main
+  repo-actions: [edit, issue]
+  navbar:
+    left:
+      - href: index.qmd
+        text: Inicio
+ 
+  sidebar:
+    style: "floating"
+    search: true
+    contents:
+      - section: "Instalar R"
+        contents:
+          - instala.qmd
+      - section: "Sesiones"
+        contents:
+          - P1.qmd
+
+
+    
+format:
+  html:
+    theme: 
+      light: pulse
+      dark: darkly
+    css: styles.css
+    toc: true
+
+editor: visual
+
