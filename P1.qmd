@@ -4,7 +4,7 @@ title: "Sesión 1"
 
 ## Primer acercamiento al uso del programa
 
-En RStudio de Posit podemos tener varias ventanas que nos permiten tener más control de nuestro "ambiente", el historial, los "scripts" o códigos que escribimos y por supuesto, tenemos nuestra consola, que también tiene el símbolo ">" con R. Podemos pedir operaciones básicas
+En RStudio de Posit podemos tener varias ventanas que nos permiten tener más control de nuestro "ambiente", el historial, los "scripts" o códigos que escribimos y por supuesto, tenemos nuestra consola, que también tiene el símbolo "\>" con R. Podemos pedir operaciones básicas
 
 ```{r 2}
 2+5
@@ -24,7 +24,7 @@ T == TRUE       ## T expresion corta de verdadero
 
 ```
 
-R es un lenguaje de programación por objetos. Por lo cual vamos a tener objetos a los que se les asigna su contenido. Si usamos una flechita "<-" o "->" le estamos asignando algo al objeto que apunta la felcha.
+R es un lenguaje de programación por objetos. Por lo cual vamos a tener objetos a los que se les asigna su contenido. Si usamos una flechita "\<-" o "-\>" le estamos asignando algo al objeto que apunta la felcha.
 
 ```{r 3}
 x <- 24         ## Asignacion de valor 24 a la variable x para su uso posterior (OBJETO)
@@ -33,13 +33,18 @@ x               ## Imprime en pantalla el valor de la variable u objeto
 x <- TRUE       ## Asigna el valor logico TRUE a la variable x OJO: x toma el ultimo valor que se le asigna
 x
 ```
-#### Vectores
-Los vectores son uno de los objetos más usados en R. 
+
+### Vectores
+
+Los vectores son uno de los objetos más usados en R.
+
 ```{r 4}
 y <- c(2,4,6)     ## Vector numerico
 y <- c('Primaria', 'Secundaria') ## Vector caracteres
 ```
-Dado que poseen elementos, podemos también observar y hacer operaciones con sus elementos, usando "[ ]" para acceder a ellos
+
+Dado que poseen elementos, podemos también observar y hacer operaciones con sus elementos, usando "\[ \]" para acceder a ellos
+
 ```{r 5}
 y[2]              ## Acceder al segundo valor del vector y
 y[3] <- 'Preparatoria y más' ## Asigna valor a la tercera componente del vector
@@ -49,8 +54,8 @@ sex[2]            ## Segundo elemento del vector sex
 
 ```
 
+### Matrices
 
-#### Matrices
 Las matrices son muy importantes, porque nos permiten hacer operaciones y casi todas nuestras bases de datos tendran un aspecto de matriz.
 
 ```{r}
@@ -72,8 +77,8 @@ rbind(xx,yy) ## Une vectores por Renglones
 mi_matrix<-cbind(xx,yy) ## este resultado lo puedo asignar a un objeto
 ```
 
+### Funciones
 
-#### Funciones
 Algunas funciones básicas son las siguientes. Vamos a ir viendo más funciones, pero para entender cómo funcionan, haremos unos ejemplos y cómo pedir ayuda sobre ellas.
 
 ```{r 6}
@@ -83,7 +88,8 @@ sqrt(9)           ## Raiz cuadrada de 9
 
 ```
 
-#### Ayuda
+### Ayuda
+
 Pedir ayuda es indispensable para aprender a escribir nuestros códigos. A prueba y error, es el mejor sistema para aprender. Podemos usar la función help, example y ?
 
 ```{r 7}
@@ -91,13 +97,17 @@ help(sum)         ## Ayuda sobre función sum
 example(sum)      ## Ejemplo de función sum
 ```
 
-#### Mi ambiente
+### Mi ambiente
+
 Todos los objetos que hemos declarado hasta ahora son parte de nuestro "ambiente" (environment). Para saber qué está en nuestro ambiente usamos el comando
+
 ```{r 8}
 ls()
 gc()           ## Garbage collection, reporta memoria en uso
 ```
+
 Para borrar todos nuestros objetos, usamos el siguiente comando, que equivale a usar la escobita de la venta de environment
+
 ```{r 9}
 rm(list=ls())  ## Borrar objetos actuales
 ```
@@ -169,13 +179,12 @@ pacman::p_load(tidyverse, readxl, writexl, haven, sjlabelled, foreign, WDI) #car
 
 ```
 
-
-
 ## Dataframes
-Instalamos anteriormente  el paquete `{WDI}` que nos da acceso a un grupo amplio de bases de datos que nos ayudaran a revisar y analizar algunas técnicas sencillas. 
 
+Instalamos anteriormente el paquete `{WDI}` que nos da acceso a un grupo amplio de bases de datos que nos ayudaran a revisar y analizar algunas técnicas sencillas.
 
 "El Banco Mundial pone a disposición una gran cantidad de datos excelentes de los Indicadores de Desarrollo Mundial a través de su API web. El paquete WDI para R facilita la búsqueda y descarga de series de datos desde WDI".
+
 ```{r}
 WDI::WDIsearch('gender')
 ```
@@ -196,7 +205,6 @@ WDI::WDI(country = "all",
 
 Esta información la podemos guardar en un objeto. En este caso mejor pediremos un solo país:
 
-
 ```{r}
 gdp<-WDI::WDI(country = "MX",
     indicator = "NY.GDP.PCAP.KD",
@@ -207,6 +215,7 @@ gdp<-WDI::WDI(country = "MX",
 ```
 
 Vamos a revisar nuestro objeto:
+
 ```{r}
 class(gdp)
 ```
@@ -223,7 +232,6 @@ plot(gdp$year, gdp$NY.GDP.PCAP.KD)
 
 Veamos y conozcamos la función "plot()"
 
-
 Otra opción es decirle a R que tenemos una variable en el tiempo:
 
 ```{r}
@@ -234,19 +242,28 @@ Las matrices por lo general sólo almacenan un tipo de datos mientras que las da
 
 ## Taller
 
-#### Ejercicio 1
+### Ejercicio 1
+
 En su proyecto en realice en nuevo script lo siguiente:
 
-1. Escriba un vector "x", con los elementos 2,3,7,9. Muestre el resultado
-2. Escriba un vector "y", con los elementos 9, 7, 3, 2. Muestre el resultado
-3. Escriba un vector "year" con los años que van desde 1990 a 1993. Muestre el resultado
-4. Escriba un vector "name" con los nombres de 4 de sus compañeros de curso. Muestre el resultado
-5. Cree una matrix “m”  2x4 que incluya los valores 101 a 108, que se ordene según fila
-6. ¿Cuáles son las dimensiones de la matriz "m"?
-7. Cree una matriz "m2" juntado los vectores “x” y “y”, por sus filas
-8. ¿Cuáles son las dimensiones de la matriz "m2"?
+1.  Escriba un vector "x", con los elementos 2,3,7,9. Muestre el resultado
+2.  Escriba un vector "y", con los elementos 9, 7, 3, 2. Muestre el resultado
+3.  Escriba un vector "year" con los años que van desde 1990 a 1993. Muestre el resultado
+4.  Escriba un vector "name" con los nombres de 4 de sus compañeros de curso. Muestre el resultado
+5.  Cree una matrix "m" 2x4 que incluya los valores 101 a 108, que se ordene según fila
+6.  ¿Cuáles son las dimensiones de la matriz "m"?
+7.  Cree una matriz "m2" juntado los vectores "x" y "y", por sus filas
+8.  ¿Cuáles son las dimensiones de la matriz "m2"?
 
-
-#### Ejercicio 2
+### Ejercicio 2
 
 Haga un objeto de consulta de cualquier otro indicador usando la librería WDI
+
+### Extras
+
+[Proyecto en posit.cloud](https://posit.cloud/content/6299219)
+
+
+[Paquetes](https://github.com/FCPyS/R_Demo_2024_1/blob/main/paquetes.R)
+
+No son todos los paquetes pero sí buena parte.

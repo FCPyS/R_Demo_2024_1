@@ -215,13 +215,25 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#primer-acercamiento-al-uso-del-programa" id="toc-primer-acercamiento-al-uso-del-programa" class="nav-link active" data-scroll-target="#primer-acercamiento-al-uso-del-programa">Primer acercamiento al uso del programa</a></li>
+  <li><a href="#primer-acercamiento-al-uso-del-programa" id="toc-primer-acercamiento-al-uso-del-programa" class="nav-link active" data-scroll-target="#primer-acercamiento-al-uso-del-programa">Primer acercamiento al uso del programa</a>
+  <ul class="collapse">
+  <li><a href="#vectores" id="toc-vectores" class="nav-link" data-scroll-target="#vectores">Vectores</a></li>
+  <li><a href="#matrices" id="toc-matrices" class="nav-link" data-scroll-target="#matrices">Matrices</a></li>
+  <li><a href="#funciones" id="toc-funciones" class="nav-link" data-scroll-target="#funciones">Funciones</a></li>
+  <li><a href="#ayuda" id="toc-ayuda" class="nav-link" data-scroll-target="#ayuda">Ayuda</a></li>
+  <li><a href="#mi-ambiente" id="toc-mi-ambiente" class="nav-link" data-scroll-target="#mi-ambiente">Mi ambiente</a></li>
+  </ul></li>
   <li><a href="#directorio-de-trabajo" id="toc-directorio-de-trabajo" class="nav-link" data-scroll-target="#directorio-de-trabajo">Directorio de trabajo</a></li>
   <li><a href="#proyectos" id="toc-proyectos" class="nav-link" data-scroll-target="#proyectos">Proyectos</a></li>
   <li><a href="#instalación-de-paquetes" id="toc-instalación-de-paquetes" class="nav-link" data-scroll-target="#instalación-de-paquetes">Instalación de paquetes</a></li>
   <li><a href="#paquete-pacman" id="toc-paquete-pacman" class="nav-link" data-scroll-target="#paquete-pacman">Paquete <code>{pacman}</code></a></li>
   <li><a href="#dataframes" id="toc-dataframes" class="nav-link" data-scroll-target="#dataframes">Dataframes</a></li>
-  <li><a href="#taller" id="toc-taller" class="nav-link" data-scroll-target="#taller">Taller</a></li>
+  <li><a href="#taller" id="toc-taller" class="nav-link" data-scroll-target="#taller">Taller</a>
+  <ul class="collapse">
+  <li><a href="#ejercicio-1" id="toc-ejercicio-1" class="nav-link" data-scroll-target="#ejercicio-1">Ejercicio 1</a></li>
+  <li><a href="#ejercicio-2" id="toc-ejercicio-2" class="nav-link" data-scroll-target="#ejercicio-2">Ejercicio 2</a></li>
+  <li><a href="#extras" id="toc-extras" class="nav-link" data-scroll-target="#extras">Extras</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/fcpys/taller_meg/edit/main/P1.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/fcpys/taller_meg/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
@@ -306,8 +318,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>[1] TRUE</code></pre>
 </div>
 </div>
-<section id="vectores" class="level4">
-<h4 class="anchored" data-anchor-id="vectores">Vectores</h4>
+<section id="vectores" class="level3">
+<h3 class="anchored" data-anchor-id="vectores">Vectores</h3>
 <p>Los vectores son uno de los objetos más usados en R.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">6</span>)     <span class="do">## Vector numerico</span></span>
@@ -329,8 +341,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 </section>
-<section id="matrices" class="level4">
-<h4 class="anchored" data-anchor-id="matrices">Matrices</h4>
+<section id="matrices" class="level3">
+<h3 class="anchored" data-anchor-id="matrices">Matrices</h3>
 <p>Las matrices son muy importantes, porque nos permiten hacer operaciones y casi todas nuestras bases de datos tendran un aspecto de matriz.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">matrix</span> (<span class="at">nrow=</span><span class="dv">2</span>, <span class="at">ncol=</span><span class="dv">3</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>) <span class="do">## Matrices Ejemplo 1</span></span>
@@ -382,8 +394,8 @@ yy   14   15   16</code></pre>
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>mi_matrix<span class="ot">&lt;-</span><span class="fu">cbind</span>(xx,yy) <span class="do">## este resultado lo puedo asignar a un objeto</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="funciones" class="level4">
-<h4 class="anchored" data-anchor-id="funciones">Funciones</h4>
+<section id="funciones" class="level3">
+<h3 class="anchored" data-anchor-id="funciones">Funciones</h3>
 <p>Algunas funciones básicas son las siguientes. Vamos a ir viendo más funciones, pero para entender cómo funcionan, haremos unos ejemplos y cómo pedir ayuda sobre ellas.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span> (<span class="dv">10</span>,<span class="dv">20</span>,<span class="dv">30</span>)    <span class="do">## Función suma</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -400,8 +412,8 @@ yy   14   15   16</code></pre>
 </div>
 </div>
 </section>
-<section id="ayuda" class="level4">
-<h4 class="anchored" data-anchor-id="ayuda">Ayuda</h4>
+<section id="ayuda" class="level3">
+<h3 class="anchored" data-anchor-id="ayuda">Ayuda</h3>
 <p>Pedir ayuda es indispensable para aprender a escribir nuestros códigos. A prueba y error, es el mejor sistema para aprender. Podemos usar la función help, example y ?</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">help</span>(sum)         <span class="do">## Ayuda sobre función sum</span></span>
@@ -430,8 +442,8 @@ sum&gt; sum(1:5, NA, na.rm = TRUE)
 </div>
 </div>
 </section>
-<section id="mi-ambiente" class="level4">
-<h4 class="anchored" data-anchor-id="mi-ambiente">Mi ambiente</h4>
+<section id="mi-ambiente" class="level3">
+<h3 class="anchored" data-anchor-id="mi-ambiente">Mi ambiente</h3>
 <p>Todos los objetos que hemos declarado hasta ahora son parte de nuestro “ambiente” (environment). Para saber qué está en nuestro ambiente usamos el comando</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -442,8 +454,8 @@ sum&gt; sum(1:5, NA, na.rm = TRUE)
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gc</span>()           <span class="do">## Garbage collection, reporta memoria en uso</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-Ncells  603781 32.3    1316828 70.4         NA  1316828 70.4
-Vcells 1121509  8.6    8388608 64.0      16384  1851252 14.2</code></pre>
+Ncells  603785 32.3    1316780 70.4         NA  1316780 70.4
+Vcells 1121647  8.6    8388608 64.0      16384  1851250 14.2</code></pre>
 </div>
 </div>
 <p>Para borrar todos nuestros objetos, usamos el siguiente comando, que equivale a usar la escobita de la venta de environment</p>
@@ -464,10 +476,10 @@ Vcells 1121509  8.6    8388608 64.0      16384  1851252 14.2</code></pre>
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>()      <span class="co"># Lista de archivos en ese directorio</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] "LICENSE"             "P1.qmd"              "P1.rmarkdown"       
- [4] "R_Demo_2024_1.Rproj" "_quarto.yml"         "datos"              
- [7] "docs"                "ima"                 "index.html"         
-[10] "index.qmd"           "instala.html"        "instala.qmd"        
-[13] "site_libs"          </code></pre>
+ [4] "README.md"           "R_Demo_2024_1.Rproj" "_quarto.yml"        
+ [7] "datos"               "docs"                "ima"                
+[10] "index.html"          "index.qmd"           "instala.html"       
+[13] "instala.qmd"         "paquetes.R"          "site_libs"          </code></pre>
 </div>
 </div>
 <p>Checar que esto también se puede hacer desde el menú:</p>
@@ -34863,8 +34875,8 @@ Vcells 1121509  8.6    8388608 64.0      16384  1851252 14.2</code></pre>
 </section>
 <section id="taller" class="level2">
 <h2 class="anchored" data-anchor-id="taller">Taller</h2>
-<section id="ejercicio-1" class="level4">
-<h4 class="anchored" data-anchor-id="ejercicio-1">Ejercicio 1</h4>
+<section id="ejercicio-1" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-1">Ejercicio 1</h3>
 <p>En su proyecto en realice en nuevo script lo siguiente:</p>
 <ol type="1">
 <li>Escriba un vector “x”, con los elementos 2,3,7,9. Muestre el resultado</li>
@@ -34877,9 +34889,15 @@ Vcells 1121509  8.6    8388608 64.0      16384  1851252 14.2</code></pre>
 <li>¿Cuáles son las dimensiones de la matriz “m2”?</li>
 </ol>
 </section>
-<section id="ejercicio-2" class="level4">
-<h4 class="anchored" data-anchor-id="ejercicio-2">Ejercicio 2</h4>
+<section id="ejercicio-2" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicio-2">Ejercicio 2</h3>
 <p>Haga un objeto de consulta de cualquier otro indicador usando la librería WDI</p>
+</section>
+<section id="extras" class="level3">
+<h3 class="anchored" data-anchor-id="extras">Extras</h3>
+<p><a href="https://posit.cloud/content/6299219">Proyecto en posit.cloud</a></p>
+<p><a href="https://github.com/FCPyS/R_Demo_2024_1/blob/main/paquetes.R">Paquetes</a></p>
+<p>No son todos los paquetes pero sí buena parte.</p>
 
 
 </section>
