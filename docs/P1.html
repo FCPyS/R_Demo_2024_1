@@ -209,6 +209,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <a href="./P2.html" class="sidebar-item-text sidebar-link">Sesión 2</a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P3.html" class="sidebar-item-text sidebar-link">Sesión 4</a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -240,7 +245,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#extras" id="toc-extras" class="nav-link" data-scroll-target="#extras">Extras</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/fcpys/taller_meg/edit/main/P1.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/fcpys/taller_meg/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/fcpys/R_Demo_2024_1/edit/main/P1.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/fcpys/R_Demo_2024_1/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -459,8 +464,8 @@ sum&gt; sum(1:5, NA, na.rm = TRUE)
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gc</span>()           <span class="do">## Garbage collection, reporta memoria en uso</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-Ncells  603788 32.3    1316787 70.4         NA  1316787 70.4
-Vcells 1121652  8.6    8388608 64.0      16384  1851250 14.2</code></pre>
+Ncells  603790 32.3    1316735 70.4         NA  1316735 70.4
+Vcells 1121657  8.6    8388608 64.0      16384  1851250 14.2</code></pre>
 </div>
 </div>
 <p>Para borrar todos nuestros objetos, usamos el siguiente comando, que equivale a usar la escobita de la venta de environment</p>
@@ -480,12 +485,16 @@ Vcells 1121652  8.6    8388608 64.0      16384  1851250 14.2</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>()      <span class="co"># Lista de archivos en ese directorio</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] "LICENSE"             "Mi_Exportación.xlsx" "P1.qmd"             
- [4] "P1.rmarkdown"        "P2.qmd"              "README.md"          
- [7] "R_Demo_2024_1.Rproj" "_quarto.yml"         "datos"              
-[10] "docs"                "ima"                 "index.html"         
-[13] "index.qmd"           "instala.html"        "instala.qmd"        
-[16] "paquetes.R"          "site_libs"          </code></pre>
+<pre><code> [1] "LICENSE"                  "Mi_Exportación.xlsx"     
+ [3] "P1.qmd"                   "P1.rmarkdown"            
+ [5] "P2.qmd"                   "P3.qmd"                  
+ [7] "README.md"                "R_Demo_2024_1.Rproj"     
+ [9] "_quarto.yml"              "datos"                   
+[11] "docs"                     "ima"                     
+[13] "index.html"               "index.qmd"               
+[15] "instala.html"             "instala.qmd"             
+[17] "paquetes.R"               "s3fusionado_ppt2023.pdf" 
+[19] "s3fusionado_ppt2023.pptx" "site_libs"               </code></pre>
 </div>
 </div>
 <p>Checar que esto también se puede hacer desde el menú:</p>

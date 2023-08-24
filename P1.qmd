@@ -263,7 +263,6 @@ Haga un objeto de consulta de cualquier otro indicador usando la librería WDI
 
 [Proyecto en posit.cloud](https://posit.cloud/content/6299219)
 
-
 [Paquetes](https://github.com/FCPyS/R_Demo_2024_1/blob/main/paquetes.R)
 
 No son todos los paquetes pero sí buena parte.

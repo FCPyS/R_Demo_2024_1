@@ -209,6 +209,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <a href="./P2.html" class="sidebar-item-text sidebar-link active">Sesión 2</a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P3.html" class="sidebar-item-text sidebar-link">Sesión 4</a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -221,7 +226,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
    
   <ul>
   <li><a href="#consejo-para-escribir-código" id="toc-consejo-para-escribir-código" class="nav-link active" data-scroll-target="#consejo-para-escribir-código">Consejo para escribir “código””</a></li>
-  <li><a href="#vamos-a-trabajar-con-el-proyecto." id="toc-vamos-a-trabajar-con-el-proyecto." class="nav-link" data-scroll-target="#vamos-a-trabajar-con-el-proyecto.">Vamos a trabajar con el proyecto.</a>
+  <li><a href="#vamos-a-trabajar-con-el-proyecto" id="toc-vamos-a-trabajar-con-el-proyecto" class="nav-link" data-scroll-target="#vamos-a-trabajar-con-el-proyecto">Vamos a trabajar con el proyecto</a></li>
+  <li><a href="#importación-de-datos" id="toc-importación-de-datos" class="nav-link" data-scroll-target="#importación-de-datos">Importación de datos</a>
   <ul class="collapse">
   <li><a href="#desde-excel" id="toc-desde-excel" class="nav-link" data-scroll-target="#desde-excel">Desde Excel</a></li>
   </ul></li>
@@ -242,7 +248,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#subsetting" id="toc-subsetting" class="nav-link" data-scroll-target="#subsetting">“Subsetting”</a></li>
   <li><a href="#ejercicio" id="toc-ejercicio" class="nav-link" data-scroll-target="#ejercicio">Ejercicio</a></li>
   </ul>
-<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/fcpys/taller_meg/edit/main/P2.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/fcpys/taller_meg/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/fcpys/R_Demo_2024_1/edit/main/P2.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/fcpys/R_Demo_2024_1/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -267,7 +273,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="consejo-para-escribir-código" class="level2">
 <h2 class="anchored" data-anchor-id="consejo-para-escribir-código">Consejo para escribir “código””</h2>
 <p>En general, cuando hacemos nuestro código querremos verificar que nuestras librerías estén instaladas. Si actualizamos nuestro R y Rstudio es probable que hayamos perdido alguno.</p>
-<p>Este es un ejemplo de un código. Y vamos a introducir un paquete muy útil llamado “pacman”</p>
+<p>Este es un ejemplo de un código. Y vamos a introducir un paquete muy útil llamado <code>{pacman}</code></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(<span class="st">"pacman"</span>)) <span class="fu">install.packages</span>(<span class="st">"pacman"</span>) <span class="co"># instala pacman si se requiere</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -281,9 +287,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>               curl) <span class="co"># para que lea urls </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="vamos-a-trabajar-con-el-proyecto." class="level2">
-<h2 class="anchored" data-anchor-id="vamos-a-trabajar-con-el-proyecto.">Vamos a trabajar con el proyecto.</h2>
-<p>Descarguemos algunos ejemplos de información, <a href="https://www.dropbox.com/scl/fo/vft7ua44ihxhgr8sdwgn0/h?rlkey=5q1j1ryuexjqet3b0r782y86e&amp;dl=0">aquí</a> un par de ejemplo de algunos formatos. ## Importación de datos</p>
+<section id="vamos-a-trabajar-con-el-proyecto" class="level2">
+<h2 class="anchored" data-anchor-id="vamos-a-trabajar-con-el-proyecto">Vamos a trabajar con el proyecto</h2>
+<p>Descarguemos algunos ejemplos de información, <a href="https://www.dropbox.com/scl/fo/vft7ua44ihxhgr8sdwgn0/h?rlkey=5q1j1ryuexjqet3b0r782y86e&amp;dl=0">aquí</a> un par de ejemplo de algunos formatos.</p>
+</section>
+<section id="importación-de-datos" class="level2">
+<h2 class="anchored" data-anchor-id="importación-de-datos">Importación de datos</h2>
 <section id="desde-excel" class="level3">
 <h3 class="anchored" data-anchor-id="desde-excel">Desde Excel</h3>
 <p>El paquete más compatible con RStudio es readxl. A veces, otros paquetes tienen más problemas de configuración entre R y el Java.</p>

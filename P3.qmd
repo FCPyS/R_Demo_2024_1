@@ -1,0 +1,293 @@
+---
+title: "Sesión 4"
+---
+## Presentación
+
+Aquí dejo la presentación
+
+<iframe src="./s3fusionado_ppt2023.pdf" title="Fusionado" width="600" height="400">
+
+</iframe>
+
+
+## Fusionado de conjuntos de datos
+
+
+Vamos a trabajar con esta base de datos de la ENIGH 2022, que tiene tablas separadas.
+
+
+Las puedes descargar desde [aquí](https://www.dropbox.com/scl/fo/vft7ua44ihxhgr8sdwgn0/h?rlkey=5q1j1ryuexjqet3b0r782y86e&dl=0), son todas las que tiene sufijo 2022
+
+```{r}
+if (!require("pacman")) install.packages("pacman") # instala pacman si se requiere
+pacman::p_load(skimr,tidyverse, magrittr, # sobretodo para dplyr
+              haven, readxl, #importación
+              janitor, 
+              sjlabelled) 
+```
+
+Hoy cargamos la versión seccionada de la base
+
+```{r}
+viviendas <- haven::read_dta("datos/viviendas2022.dta")
+concentrado <- haven::read_dta("datos/concentrado2022.dta")
+poblacion<- haven::read_dta("datos/poblacion2022.dta")
+
+
+```
+
+## Juntando bases
+
+Muchas bases de datos están organizadas en varias tablas. La ventaja de la programación por objetos de R, nos permite tener las bases cargadas en nuestro ambiente y llamarlas y juntarlas cuando sea necesario.
+
+```{r}
+dim(viviendas)
+names(viviendas[,1:15])
+
+dim(concentrado)
+names(concentrado[,1:15])
+
+dim(poblacion)
+names(poblacion[,1:15])
+
+
+```
+
+Para juntar bases usamos el comando `merge()`
+
+En `by =`{ ponemos el id, correspondiente a la variable o variables que forman el id, entrecomillado. Cuando estamos mezclando bases del mismo nivel de análisis el id es igual en ambas bases. Cuando estamos incorporando información de bases de distinto nivel debemos escoger
+
+En general ponemos el id de la base de mayor nivel. En este caso, sabemos que a una vivienda corresponde más de un hogar. Tal como revisamos nuestra documentación, sabemos que el id de la tabla `viviendas` es `folioviv`
+
+```{r}
+merge_data<- merge(viviendas, concentrado, by="folioviv")
+
+```
+
+Esto es equivalente a `left_join()` de `{dplyr}`
+
+```{r}
+merge_data <- dplyr::left_join(viviendas, concentrado, by="folioviv") 
+
+merge_data <- viviendas %>% 
+  dplyr::left_join(concentrado, by="folioviv") 
+
+
+```
+
+
+Revisemos la base creada
+
+```{r}
+names(merge_data)
+dim(merge_data)
+
+```
+
+Algunos elementos
+
+(1) El orden de las variables corresponde al orden que pusimos las bases en las opciones.
+
+(2) También vemos que las variables que se repetían en ambas bases se repiten en la nueva base, seguida de un un punto y una "x", para lo que proviene de la primera base y con una "y", lo que proviene de la segunda. R dejará las variables intactas y son coincidentes, en nuestro caso, porque las variables son iguales. R hace esto para precaver que por error tengamos alguna variable con un nombre igual y no sea la misma
+
+## Merge con id compuesto
+
+Los identificadores pueden estar compuestos de más de una variable:
+
+-   Viviendas {viviendas} es "folioviv"
+
+```{r}
+viviendas %>% 
+  janitor::get_dupes(folioviv)
+```
+
+-   concentrado {concentrado} es "folioviv", "foliohog"
+
+```{r}
+concentrado %>% 
+  janitor::get_dupes(c(folioviv, foliohog))
+```
+
+-   Poblacion {individuos} es "folioviv", "foliohog", "numren"
+
+```{r}
+poblacion %>% 
+  janitor::get_dupes(c(folioviv, foliohog, numren))
+```
+
+Esto significa que tenemos un id compuesto. No es una sola variable. Para esto modificamos ligeramente cómo ponemos el "by", pero siempre eligiendo el id de la base de mayor nivel. (Tené cuidado con los paréntesis)
+
+```{r}
+merge_data2<- merge(concentrado, poblacion, by=c("folioviv", "foliohog"))
+dim(merge_data2)
+
+```
+
+Revisemos la base
+
+```{r}
+merge_data2 %>% 
+  tail()
+```
+
+## Bases de distinto tamaño
+
+Hasta ahorita hemos hecho merge que son de unidades de distinto nivel y son incluyentes. A veces tenemos bases de datos que son de distinto tamaño y del mismo nivel. A veces las dos aportan casos y a veces aportan variables, y a veces, las dos aportan las dos cosas.
+
+Vamos a revisar qué pasaría si quisiéramos incorporar la información los ingresos
+
+```{r}
+rm(merge_data, merge_data2) # botamos otros ejemplos
+
+ingresos<- haven::read_dta("datos/ingresos2022.dta")
+
+```
+
+Esta base tiene otro ID
+
+-   Ingresos {clave de ingreso} es "folioviv", "foliohog", "numren", clave
+
+```{r}
+ingresos %>% 
+  janitor::get_dupes(c(folioviv, foliohog, numren, clave))
+```
+
+¿Cuántas claves de ingreso hay?
+```{r}
+ingresos %>% 
+  tabyl(clave)
+```
+
+
+
+```{r}
+ingresos_sueldos<-ingresos %>% 
+    filter(clave=="P001") 
+dim(ingresos_sueldos)
+
+```
+
+Vamos a hacer el primer tipo de merge
+
+```{r}
+merge_data3<-merge(poblacion, ingresos_sueldos, by=c("folioviv", "foliohog", "numren"))
+dim(merge_data3)
+```
+
+¡La base nueva no tiene a todas las observaciones, solo la que tiene en la base más pequeña! Tenemos sólo 99,9992 individuos.
+
+## Cuatro formas de hacer un fusionado
+
+En realidad hay cuatro formas de hacer un "merge"
+
+### Casos en ambas bases
+
+Por *default*, el comando tiene activado la opción "all = FALSE", que nos deja los datos de ambas bases comunes. (tipo una intersección)
+
+```{r}
+merge_data3<-merge(poblacion, 
+                   ingresos_sueldos,
+                   by=c("folioviv", "foliohog", "numren"), 
+                   all = F)
+dim(merge_data3)
+```
+
+### Todos los casos
+
+Si cambiamos la opción "all = TRUE", que nos deja los datos comunes a ambas bases. (como una unión)
+
+```{r}
+merge_data3<-merge(poblacion,
+                   ingresos_sueldos, 
+                   by=c("folioviv", "foliohog", "numren"), 
+                   all = T)
+dim(merge_data3)
+```
+
+### Casos en la base 1
+
+Si queremos quedarnos con todos los datos que hay en la primera base, x, vamos a usar a opción all.x = TRUE.
+
+```{r}
+merge_data3<-merge(poblacion, 
+                   ingresos_sueldos,
+                   by=c("folioviv", "foliohog", "numren"), 
+                   all.x  = TRUE)
+dim(merge_data3)
+```
+
+### Casos de la base 2
+
+Notamos que hoy sí tenemos los datos de toda la población y hay missings en las variables aportadas por la base de trabajo
+
+Si queremos lo contrario, quedarnos con los datos aportados por la segunda base, y, vamos a usar la opción all.y=TRUE
+
+```{r}
+merge_data3<-merge(poblacion, 
+                   ingresos_sueldos,
+                   by=c("folioviv", "foliohog", "numren"),
+                   all.y  = TRUE)
+dim(merge_data3)
+```
+
+## Las cuatro formas en `dplyr`
+
+El caso 1:
+
+```{r}
+merge_data3<-dplyr::inner_join(poblacion,
+                               ingresos_sueldos,
+                               by=c("folioviv", "foliohog", "numren"))
+dim(merge_data3)
+
+```
+
+
+El caso 2:
+
+```{r}
+merge_data3<-dplyr::full_join(poblacion, 
+                              ingresos_sueldos, 
+                              by=c("folioviv", "foliohog", "numren"))
+dim(merge_data3)
+
+```
+
+
+El caso 3:
+
+```{r}
+merge_data3<-dplyr::left_join(poblacion,
+                              ingresos_sueldos, 
+                              by=c("folioviv", "foliohog", "numren"))
+dim(merge_data3)
+
+```
+
+El caso 4:
+
+```{r}
+merge_data3<-dplyr::right_join(poblacion, 
+                               ingresos_sueldos,
+                               by=c("folioviv", "foliohog", "numren"))
+dim(merge_data3)
+
+```
+
+También se puede usar con pipes, cualquier opción de dplyr
+
+```{r}
+merge_data3<-poblacion %>% # pongo el conjunto que será la "izquierda
+  dplyr::right_join(ingresos_sueldos, 
+                    by=c("folioviv", "foliohog", "numren"))
+dim(merge_data3)
+```
+
+
+## Cheatsheet de {dplyr}
+
+La puedes descargar de [aquí](https://raw.githubusercontent.com/rstudio/cheatsheets/main/data-transformation.pdf)
+
+## Ejercicio
+
+¡Junta tu base!
