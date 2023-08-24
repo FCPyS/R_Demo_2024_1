@@ -1,5 +1,5 @@
 ---
-title: "Sesión 4"
+title: "Sesión 3"
 ---
 ## Presentación
 
@@ -16,7 +16,7 @@ Aquí dejo la presentación
 Vamos a trabajar con esta base de datos de la ENIGH 2022, que tiene tablas separadas.
 
 
-Las puedes descargar desde [aquí](https://www.dropbox.com/scl/fo/vft7ua44ihxhgr8sdwgn0/h?rlkey=5q1j1ryuexjqet3b0r782y86e&dl=0), son todas las que tiene sufijo 2022
+Las puedes descargar desde [aquí](https://www.dropbox.com/scl/fo/vft7ua44ihxhgr8sdwgn0/h?rlkey=5q1j1ryuexjqet3b0r782y86e&dl=0), son todas las que tiene sufijo "2022".
 
 ```{r}
 if (!require("pacman")) install.packages("pacman") # instala pacman si se requiere
@@ -55,9 +55,9 @@ names(poblacion[,1:15])
 
 Para juntar bases usamos el comando `merge()`
 
-En `by =`{ ponemos el id, correspondiente a la variable o variables que forman el id, entrecomillado. Cuando estamos mezclando bases del mismo nivel de análisis el id es igual en ambas bases. Cuando estamos incorporando información de bases de distinto nivel debemos escoger
+En `by =` ponemos el `id`, correspondiente a la variable o variables que lo conforman, de manera entrecomillada o de vector. Cuando estamos mezclando bases del mismo nivel de análisis el `id` es igual en ambas bases. Cuando estamos incorporando información de bases de distinto nivel debemos escoger el nivel mayor.
 
-En general ponemos el id de la base de mayor nivel. En este caso, sabemos que a una vivienda corresponde más de un hogar. Tal como revisamos nuestra documentación, sabemos que el id de la tabla `viviendas` es `folioviv`
+En este caso, sabemos que a una vivienda corresponde más de un hogar (1 a muchos). Esto se puede revisar documentación, sabemos que el `id` de la tabla `viviendas` es `folioviv`
 
 ```{r}
 merge_data<- merge(viviendas, concentrado, by="folioviv")
@@ -88,37 +88,38 @@ Algunos elementos
 
 (1) El orden de las variables corresponde al orden que pusimos las bases en las opciones.
 
-(2) También vemos que las variables que se repetían en ambas bases se repiten en la nueva base, seguida de un un punto y una "x", para lo que proviene de la primera base y con una "y", lo que proviene de la segunda. R dejará las variables intactas y son coincidentes, en nuestro caso, porque las variables son iguales. R hace esto para precaver que por error tengamos alguna variable con un nombre igual y no sea la misma
+(2) También vemos que las variables que se repetían en ambas bases se repiten en la nueva base,con un sufijo `.x`, para lo que proviene de la primera base y con `.y`, lo que proviene de la segunda. R dejará las variables intactas y son coincidentes, en nuestro caso, porque las variables son iguales. R hace esto para prever que por error tengamos alguna variable con un nombre igual y no sea la misma en su contenido.
 
 ## Merge con id compuesto
 
 Los identificadores pueden estar compuestos de más de una variable:
 
--   Viviendas {viviendas} es "folioviv"
+-   Viviendas `viviendas` es `folioviv`
 
 ```{r}
 viviendas %>% 
   janitor::get_dupes(folioviv)
 ```
 
--   concentrado {concentrado} es "folioviv", "foliohog"
+-   concentrado `concentrado` es `c("folioviv", "foliohog")`
 
 ```{r}
 concentrado %>% 
   janitor::get_dupes(c(folioviv, foliohog))
 ```
 
--   Poblacion {individuos} es "folioviv", "foliohog", "numren"
+-   Poblacion `individuos` es `c("folioviv", "foliohog", "numren")`
 
 ```{r}
 poblacion %>% 
   janitor::get_dupes(c(folioviv, foliohog, numren))
 ```
 
-Esto significa que tenemos un id compuesto. No es una sola variable. Para esto modificamos ligeramente cómo ponemos el "by", pero siempre eligiendo el id de la base de mayor nivel. (Tené cuidado con los paréntesis)
+Esto es un `id compuesto`. No es una sola variable. Para esto modificamos ligeramente cómo ponemos el `by =`, pero siempre eligiendo el id de la base de mayor nivel. (Tené cuidado con los paréntesis)
 
 ```{r}
-merge_data2<- merge(concentrado, poblacion, by=c("folioviv", "foliohog"))
+merge_data2<- merge(concentrado, poblacion, 
+                    by = c("folioviv", "foliohog"))
 dim(merge_data2)
 
 ```
@@ -145,7 +146,7 @@ ingresos<- haven::read_dta("datos/ingresos2022.dta")
 
 Esta base tiene otro ID
 
--   Ingresos {clave de ingreso} es "folioviv", "foliohog", "numren", clave
+-   Ingresos `ingresos` es `c("folioviv", "foliohog", "numren", "clave")`
 
 ```{r}
 ingresos %>% 
@@ -167,14 +168,14 @@ dim(ingresos_sueldos)
 
 ```
 
-Vamos a hacer el primer tipo de merge
+Vamos a hacer el primer tipo de fusionado
 
 ```{r}
 merge_data3<-merge(poblacion, ingresos_sueldos, by=c("folioviv", "foliohog", "numren"))
 dim(merge_data3)
 ```
 
-¡La base nueva no tiene a todas las observaciones, solo la que tiene en la base más pequeña! Tenemos sólo 99,9992 individuos.
+¡La base nueva no tiene a todas las observaciones, solo la que tiene en la base más pequeña! 
 
 ## Cuatro formas de hacer un fusionado
 
@@ -284,7 +285,7 @@ dim(merge_data3)
 ```
 
 
-## Cheatsheet de {dplyr}
+## Cheatsheet de `{dplyr}`
 
 La puedes descargar de [aquí](https://raw.githubusercontent.com/rstudio/cheatsheets/main/data-transformation.pdf)
 

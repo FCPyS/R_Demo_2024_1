@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Uso de R para la demografía social - Sesión 4</title>
+<title>Uso de R para la demografía social - Sesión 3</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -158,7 +158,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </nav>
   <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
     <div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title">Sesión 4</h1>
+      <h1 class="quarto-secondary-nav-title">Sesión 3</h1>
       <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
         <i class="bi bi-chevron-right"></i>
       </button>
@@ -211,7 +211,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./P3.html" class="sidebar-item-text sidebar-link active">Sesión 4</a>
+  <a href="./P3.html" class="sidebar-item-text sidebar-link active">Sesión 3</a>
   </div>
 </li>
       </ul>
@@ -248,7 +248,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title d-none d-lg-block">Sesión 4</h1>
+<h1 class="title d-none d-lg-block">Sesión 3</h1>
 </div>
 
 
@@ -272,7 +272,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="fusionado-de-conjuntos-de-datos" class="level2">
 <h2 class="anchored" data-anchor-id="fusionado-de-conjuntos-de-datos">Fusionado de conjuntos de datos</h2>
 <p>Vamos a trabajar con esta base de datos de la ENIGH 2022, que tiene tablas separadas.</p>
-<p>Las puedes descargar desde <a href="https://www.dropbox.com/scl/fo/vft7ua44ihxhgr8sdwgn0/h?rlkey=5q1j1ryuexjqet3b0r782y86e&amp;dl=0">aquí</a>, son todas las que tiene sufijo 2022</p>
+<p>Las puedes descargar desde <a href="https://www.dropbox.com/scl/fo/vft7ua44ihxhgr8sdwgn0/h?rlkey=5q1j1ryuexjqet3b0r782y86e&amp;dl=0">aquí</a>, son todas las que tiene sufijo “2022”.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(<span class="st">"pacman"</span>)) <span class="fu">install.packages</span>(<span class="st">"pacman"</span>) <span class="co"># instala pacman si se requiere</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -326,8 +326,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>Para juntar bases usamos el comando <code>merge()</code></p>
-<p>En <code>by =</code>{ ponemos el id, correspondiente a la variable o variables que forman el id, entrecomillado. Cuando estamos mezclando bases del mismo nivel de análisis el id es igual en ambas bases. Cuando estamos incorporando información de bases de distinto nivel debemos escoger</p>
-<p>En general ponemos el id de la base de mayor nivel. En este caso, sabemos que a una vivienda corresponde más de un hogar. Tal como revisamos nuestra documentación, sabemos que el id de la tabla <code>viviendas</code> es <code>folioviv</code></p>
+<p>En <code>by =</code> ponemos el <code>id</code>, correspondiente a la variable o variables que lo conforman, de manera entrecomillada o de vector. Cuando estamos mezclando bases del mismo nivel de análisis el <code>id</code> es igual en ambas bases. Cuando estamos incorporando información de bases de distinto nivel debemos escoger el nivel mayor.</p>
+<p>En este caso, sabemos que a una vivienda corresponde más de un hogar (1 a muchos). Esto se puede revisar documentación, sabemos que el <code>id</code> de la tabla <code>viviendas</code> es <code>folioviv</code></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>merge_data<span class="ot">&lt;-</span> <span class="fu">merge</span>(viviendas, concentrado, <span class="at">by=</span><span class="st">"folioviv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -389,14 +389,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Algunos elementos</p>
 <ol type="1">
 <li><p>El orden de las variables corresponde al orden que pusimos las bases en las opciones.</p></li>
-<li><p>También vemos que las variables que se repetían en ambas bases se repiten en la nueva base, seguida de un un punto y una “x”, para lo que proviene de la primera base y con una “y”, lo que proviene de la segunda. R dejará las variables intactas y son coincidentes, en nuestro caso, porque las variables son iguales. R hace esto para precaver que por error tengamos alguna variable con un nombre igual y no sea la misma</p></li>
+<li><p>También vemos que las variables que se repetían en ambas bases se repiten en la nueva base,con un sufijo <code>.x</code>, para lo que proviene de la primera base y con <code>.y</code>, lo que proviene de la segunda. R dejará las variables intactas y son coincidentes, en nuestro caso, porque las variables son iguales. R hace esto para prever que por error tengamos alguna variable con un nombre igual y no sea la misma en su contenido.</p></li>
 </ol>
 </section>
 <section id="merge-con-id-compuesto" class="level2">
 <h2 class="anchored" data-anchor-id="merge-con-id-compuesto">Merge con id compuesto</h2>
 <p>Los identificadores pueden estar compuestos de más de una variable:</p>
 <ul>
-<li>Viviendas {viviendas} es “folioviv”</li>
+<li>Viviendas <code>viviendas</code> es <code>folioviv</code></li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>viviendas <span class="sc">%&gt;%</span> </span>
@@ -416,7 +416,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <ul>
-<li>concentrado {concentrado} es “folioviv”, “foliohog”</li>
+<li>concentrado <code>concentrado</code> es <code>c("folioviv", "foliohog")</code></li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> </span>
@@ -436,7 +436,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <ul>
-<li>Poblacion {individuos} es “folioviv”, “foliohog”, “numren”</li>
+<li>Poblacion <code>individuos</code> es <code>c("folioviv", "foliohog", "numren")</code></li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>poblacion <span class="sc">%&gt;%</span> </span>
@@ -455,10 +455,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 #   cau_oir &lt;chr&gt;, cau_vest &lt;chr&gt;, cau_habla &lt;chr&gt;, cau_acti &lt;chr&gt;, …</code></pre>
 </div>
 </div>
-<p>Esto significa que tenemos un id compuesto. No es una sola variable. Para esto modificamos ligeramente cómo ponemos el “by”, pero siempre eligiendo el id de la base de mayor nivel. (Tené cuidado con los paréntesis)</p>
+<p>Esto es un <code>id compuesto</code>. No es una sola variable. Para esto modificamos ligeramente cómo ponemos el <code>by =</code>, pero siempre eligiendo el id de la base de mayor nivel. (Tené cuidado con los paréntesis)</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>merge_data2<span class="ot">&lt;-</span> <span class="fu">merge</span>(concentrado, poblacion, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"folioviv"</span>, <span class="st">"foliohog"</span>))</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(merge_data2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>merge_data2<span class="ot">&lt;-</span> <span class="fu">merge</span>(concentrado, poblacion, </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"folioviv"</span>, <span class="st">"foliohog"</span>))</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(merge_data2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 309684    312</code></pre>
 </div>
@@ -776,7 +777,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <p>Esta base tiene otro ID</p>
 <ul>
-<li>Ingresos {clave de ingreso} es “folioviv”, “foliohog”, “numren”, clave</li>
+<li>Ingresos <code>ingresos</code> es <code>c("folioviv", "foliohog", "numren", "clave")</code></li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>ingresos <span class="sc">%&gt;%</span> </span>
@@ -892,7 +893,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>[1] 105685     21</code></pre>
 </div>
 </div>
-<p>Vamos a hacer el primer tipo de merge</p>
+<p>Vamos a hacer el primer tipo de fusionado</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>merge_data3<span class="ot">&lt;-</span><span class="fu">merge</span>(poblacion, ingresos_sueldos, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"folioviv"</span>, <span class="st">"foliohog"</span>, <span class="st">"numren"</span>))</span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(merge_data3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -900,7 +901,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>[1] 105685    206</code></pre>
 </div>
 </div>
-<p>¡La base nueva no tiene a todas las observaciones, solo la que tiene en la base más pequeña! Tenemos sólo 99,9992 individuos.</p>
+<p>¡La base nueva no tiene a todas las observaciones, solo la que tiene en la base más pequeña!</p>
 </section>
 <section id="cuatro-formas-de-hacer-un-fusionado" class="level2">
 <h2 class="anchored" data-anchor-id="cuatro-formas-de-hacer-un-fusionado">Cuatro formas de hacer un fusionado</h2>
