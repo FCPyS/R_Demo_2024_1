@@ -1,0 +1,647 @@
+---
+title: "Sesión 4"
+---
+
+## Análisis descriptivo (I)
+
+Vamos a llamar algunas paquetes que nos ayudarán en esta práctica
+
+```{r}
+if (!require("pacman")) install.packages("pacman") # instala pacman si se requiere
+pacman::p_load(tidyverse,
+               writexl, 
+               haven,
+               sjlabelled, 
+               janitor,
+               magrittr,
+               GGally,
+               wesanderson,
+               gt,
+               pollster,
+               srvyr,
+               dineq
+)
+```
+
+
+E importamos la base
+
+```{r}
+concentrado2022 <- haven::read_dta("datos/concentrado2022.dta") 
+```
+
+### Variables nominales
+
+La variable nominal "sexo_jefe", se captura con "1" para hombres y con un "2" para mujeres en la base de datos. Podemos establecer una operación de igual y además sumar los casos que cumplan con esta condición:
+
+```{r}
+concentrado2022 %>% 
+  dplyr::count(sexo_jefe==2) # cuentan los casos que cumplen con la condición "sexo_jefe==2"
+```
+
+Esto es a lo que nos referimos con contar frecuencias. Podemos contar casos que cumplan con una operación de igualdad.
+
+```{r}
+concentrado2022 %>%
+  with(
+    table(sexo_jefe)
+    )
+```
+
+#### Recordemos nuestro etiquetado
+
+```{r}
+etiqueta_sex<-c("Hombre", "Mujer")
+
+concentrado2022<-concentrado2022 %>% 
+  mutate(sexo_jefe=as.numeric(sexo_jefe)) %>% # para quitar el "string"
+  sjlabelled::set_labels(sexo_jefe, labels=etiqueta_sex) 
+
+```
+
+```{r}
+
+concentrado2022<-concentrado2022 %>% 
+  mutate(clase_hog=as.numeric(clase_hog)) %>% # para quitar el "string"
+  sjlabelled::set_labels(clase_hog, labels=c("unipersonal",
+                                             "nuclear", 
+                                             "ampliado",
+                                             "compuesto",
+                                             "corresidente")) 
+
+```
+
+Con "tabyl()"" de "janitor""
+
+```{r}
+concentrado2022 %>%
+  dplyr::mutate(sexo_jefe=as_label(sexo_jefe))  %>%
+  janitor::tabyl(sexo_jefe)
+```
+
+Para ver que esto es una distribución de frecuencias sería muy útil ver la proporción total, ello se realiza agregando un elemento más en nuestro código con una "tubería":
+
+```{r}
+concentrado2022 %>% 
+  dplyr::mutate(sexo_jefe=as_label(sexo_jefe))  %>%
+  janitor::tabyl(sexo_jefe) %>% 
+  janitor::adorn_totals()
+```
+
+Hoy revisamos algunos tipos de variables
+
+```{r}
+class(concentrado2022$sexo_jefe) # variable sin etiqueta
+class(as_label(concentrado2022$sexo_jefe)) # variable con etiqueta
+
+class(as_label(concentrado2022$educa_jefe)) # variable ordinal
+class(concentrado2022$ing_cor) # variable de intervalo/razón
+```
+
+En general, tendremos variables de factor que podrían ser consideradas como cualitativas y numéricas. Aunque en realidad, R tiene muchas formas de almacenamiento. Como mostramos con el comando "glimpse()" en la práctica anterior, podemos revisar una variable en específico:
+
+```{r}
+dplyr::glimpse(concentrado2022$sexo_jefe)
+```
+
+```{r}
+concentrado2022 %>% mutate(sexo_jefe=as_label(sexo_jefe)) %>% # cambia los valores de la variable a sus etiquetas
+                tabyl(sexo_jefe) %>% # para hacer la tabla
+                adorn_totals() %>% # añade totales
+                adorn_pct_formatting()  # nos da porcentaje en lugar de proporción
+                
+```
+
+La tubería o "pipe" `%>%` nos permite ir agregando elementos de manera sencilla nuestros comandos. En este caso decimos que dentro del objeto haga el cambio, luego la tabla, que le ponga porcentajes y finalmente que nos dé los totales. 
+
+### Variables ordinales
+
+Son variables que dan cuenta de cualidades o condiciones a través de categorías que guardan un orden entre sí.
+
+Vamos a darle una "ojeada" a esta variable
+
+```{r}
+glimpse(concentrado2022$educa_jefe)
+```
+
+Etiquetemos también nuestra variable ordinal
+
+```{r}
+concentrado2022 <-concentrado2022 %>% 
+  mutate(educa_jefe=as.numeric(educa_jefe)) %>% 
+  set_labels(educa_jefe,
+             labels=c("Sin instrucción", 
+                      "Preescolar",
+                      "Primaria incompleta",
+                      "Primaria completa",
+                      "Secundaria incompleta",
+                      "Secundaria completa",
+                      "Preparatoria incompleta",
+                      "Preparatoria completa",
+                      "Profesional incompleta",
+                      "Profesional completa",
+                      "Posgrado"))
+```
+
+
+Hoy hacemos la tabla, con las etiquetas y vemos que se ve más bonita:
+
+```{r}
+concentrado2022 %>%
+  mutate(educa_jefe=as_label(educa_jefe)) %>% 
+  tabyl(educa_jefe)
+```
+
+Para que no nos salgan las categorías sin datos podemos *apagar* la  opción `show_missing_levels=F` dentro del comando "tabyl()"
+
+```{r}
+concentrado2022 %>% 
+  mutate(educa_jefe=as_label(educa_jefe)) %>% 
+  tabyl(educa_jefe, show_missing_levels=F ) %>% # esta opción elimina los valores con 0
+  adorn_totals()  
+```
+
+### Bivariado cualitativo
+
+#### Cálculo de frecuencias
+
+Las tablas de doble entrada tiene su nombre porque en las columnas entran los valores de una variable categórica, y en las filas de una segunda. Básicamente es como hacer un conteo de todas las combinaciones posibles entre los valores de una variable con la otra.
+
+Por ejemplo, si quisiéramos combinar las dos variables que ya estudiamos lo podemos hacer, con una tabla de doble entrada:
+
+```{r}
+concentrado2022 %>% 
+  mutate(clase_hog=as_label(clase_hog)) %>% 
+  mutate(sexo_jefe=as_label(sexo_jefe)) %>% # para que las lea como factor
+                tabyl(clase_hog, sexo_jefe, show_missing_levels=F ) %>% # incluimos aquí 
+                adorn_totals()  
+```
+
+Observamos que en cada celda confluyen los casos que comparten las mismas características:
+
+```{r}
+concentrado2022 %>%   
+    count(clase_hog==1 & sexo_jefe==1) # nos da la segunda celda de la izquierda
+
+```
+
+#### Totales y porcentajes
+
+De esta manera se colocan todos los datos. Si observa al poner la función "adorn_totals()" lo agregó como una nueva fila de totales, pero también podemos pedirle que agregue una columna de totales.
+
+```{r}
+concentrado2022 %>% 
+  mutate(clase_hog=as_label(clase_hog)) %>% 
+  mutate(sexo_jefe=as_label(sexo_jefe)) %>% # para que las lea como factor
+  tabyl(clase_hog, sexo_jefe, show_missing_levels=F ) %>% # incluimos aquí dos variables
+  adorn_totals("col")  
+```
+
+O bien agregar los dos, introduciendo en el argumento `c("col", "row")` un vector de caracteres de las dos opciones requeridas:
+
+```{r}
+concentrado2022 %>% 
+  mutate(clase_hog = as_label(clase_hog)) %>% 
+  mutate(sexo_jefe = as_label(sexo_jefe)) %>% # para que las lea como factor
+  tabyl(clase_hog, sexo_jefe, show_missing_levels = F ) %>% # incluimos aquí dos variable
+  adorn_totals(c("col", "row")) 
+```
+
+Del mismo modo, podemos calcular los porcentajes. Pero los podemos calcular de tres formas. Uno es que lo calculemos para los totales calculados para las filas, para las columnas o para el gran total poblacional.
+
+Para columnas tenemos el siguiente código y los siguientes resultados:
+
+```{r}
+concentrado2022 %>% 
+  mutate(clase_hog = as_label(clase_hog)) %>% 
+  mutate(sexo_jefe = as_label(sexo_jefe)) %>% # para que las lea como factor
+  tabyl(clase_hog, sexo_jefe, show_missing_levels = F ) %>% # incluimos aquí dos variable
+  adorn_totals(c("col", "row")) %>% 
+  adorn_percentages("col") %>% # Divide los valores entre el total de la columna
+  adorn_pct_formatting() # lo vuelve porcentaje
+
+```
+
+Cuando se hagan cuadros de distribuciones (que todas sus partes suman 100), los porcentajes pueden ser una gran ayuda para la interpretación, sobre todos cuando se comparar poblaciones de categorías de diferente tamaño. Por lo general, queremos que los cuadros nos den información de donde están los totales y su 100%, de esta manera el lector se puede guiar de porcentaje con respecto a qué está leyendo. En este caso, vemos que el 100% es común en la última fila.
+
+Veamos la diferencia de cómo podemos leer la misma celda, pero hoy, hemos calculado los porcentajes a nivel de fila:
+
+```{r}
+concentrado2022 %>% 
+  mutate(clase_hog = as_label(clase_hog)) %>% 
+  mutate(sexo_jefe = as_label(sexo_jefe)) %>% # para que las lea como factor
+  tabyl(clase_hog, sexo_jefe, show_missing_levels = F ) %>% # incluimos aquí dos variable
+  adorn_totals(c("col", "row")) %>% 
+  adorn_percentages("row") %>% # Divide los valores entre el total de la fila
+  adorn_pct_formatting() # lo vuelve porcentaje
+```
+
+Finalmente, podemos calcular los porcentajes con referencia a la población total en análisis. Es decir la celda en la esquina inferior derecha de nuestra tabla original.
+
+```{r}
+concentrado2022 %>% 
+  mutate(clase_hog = as_label(clase_hog)) %>% 
+  mutate(sexo_jefe = as_label(sexo_jefe)) %>% # para que las lea como factor
+  tabyl(clase_hog, sexo_jefe, show_missing_levels = F ) %>% # incluimos aquí dos variable
+  adorn_totals(c("col", "row")) %>% 
+  adorn_percentages("all") %>% # Divide los valores entre el total de la población
+  adorn_pct_formatting() # lo vuelve porcentaje
+```
+
+## Factores de expansión y algunas otras medidas
+
+### La función `tally()`
+
+El comando `tabyl()` del paquete `{janitor}` es muy útil pero no es compatible con los factores del expansión. En realidad, `tabyl()` nos ahorra un poco el hecho de tener que agrupar nuestra base en categorías y luego hacer un conteo para cada una de ellas. `tally()` es un comando que nos hace ese conteo y `group_by()` nos agrupa las observaciones de nuestra base de datos para hacer cualquier operación.
+
+```{r}
+concentrado2022 %>% 
+ group_by(as_label(sexo_jefe)) %>% 
+  tally(factor) %>% #nombre del factor
+  adorn_totals()  # Agrega total
+```
+
+Podemos usar funciones de `adorns...` de `{janitor}
+
+```{r}
+concentrado2022 %>% 
+ group_by(as_label(sexo_jefe)) %>% 
+  tally(factor) %>% #nombre del factor
+  adorn_totals() %>% # Agrega total
+  adorn_percentages("all")  %>% 
+  adorn_pct_formatting()
+```
+
+
+
+## Otras formas
+
+La función "count()" también permite dar pesos
+
+```{r}
+concentrado2022 %>% 
+  count(sexo_jefe, clase_hog,  wt = factor) 
+
+```
+
+Es compatible con etiquetas
+
+```{r}
+concentrado2022 %>% 
+  count(as_label(sexo_jefe), as_label(clase_hog),  wt = factor) 
+```
+
+### con `{pollster}`
+
+Para una variable
+```{r}
+# tabulado simple con factor de expansión
+
+concentrado2022 %>% 
+  dplyr::mutate(sexo_jefe = sjlabelled::as_label(sexo_jefe)) %>% 
+  pollster::topline(sexo_jefe , weight = factor)
+
+
+```
+
+
+Para dos variables
+```{r}
+# tabulado simple con factor de expansión
+
+concentrado2022 %>% 
+  dplyr::mutate(sexo_jefe = sjlabelled::as_label(sexo_jefe)) %>% 
+  dplyr::mutate(clase_hog = sjlabelled::as_label(clase_hog)) %>% 
+  pollster::crosstab(sexo_jefe, clase_hog, weight = factor)
+
+
+```
+
+## Diseño complejo
+
+Hay muchos diseños muestrales, asumiremos el diseño simple, pero hay que revisar la documentación de la base
+
+```{r}
+# Muestreo aleatorio
+ags_srvy <- concentrado2022 %>%
+  as_survey_design(weights = factor)
+
+```
+
+Si revisamos las encuestas tiene un diseño complejo, hay estratos y unidades primarias de muestreo
+
+```{r}
+
+# Muestreo estratificado
+ags_srvy <- concentrado2022 %>%
+  as_survey_design(
+    upm = upm,
+    strata = est_dis,
+    weights = factor,
+    nest = TRUE)
+
+```
+
+Como vemos esto es un archivo bien grande, por lo que mejor vamos a seleccionar un par de variables:
+
+```{r}
+# simple random sample
+ags_srvy <- concentrado2022 %>%
+  select(upm, est_dis, factor, clase_hog,
+         sexo_jefe, edad_jefe, educa_jefe,ing_cor, factor) %>% 
+  as_survey_design(
+    upm=upm,
+    strata = est_dis,
+    weights = factor,
+    nest = TRUE)
+
+```
+
+Para una media ponderada
+
+```{r}
+ags_srvy %>%
+  filter(ing_cor>0) %>% # sólo con ingresos
+  summarise(
+    media_ponderada = survey_mean(ing_cor, na.rm=T))
+
+```
+
+Si queremos los intervalos de confianza (*spoiler*):
+
+```{r}
+ags_srvy %>%
+  summarize(
+    media_ponderada = survey_mean(ing_cor,
+                                  vartype = "ci") )
+
+```
+
+```{r}
+ags_srvy %>%
+  summarize(
+    mediana_ponderada = survey_median(ing_cor,
+                                  vartype = "ci") )
+
+```
+
+```{r}
+ags_srvy %>%
+  mutate(sexo_jefe=as_label(sexo_jefe)) %>% 
+  group_by(sexo_jefe) %>% #variables cuali
+  summarize(proportion = survey_mean(), # proporción
+            total = survey_total() ) # totales
+```
+
+## Creación de quintiles y otros grupos
+
+Uno de los elementos más comunes es crear grupos. Por ejemplo, la función cut, nos ayuda a crear variables con ciertos cortes. Por ejemplo, para recodificar por grupos etarios
+
+```{r}
+concentrado2022 %<>% 
+  mutate(grupo=cut(edad_jefe,
+                   breaks=c(0, 25, 50, 75, 100)))
+  
+       
+concentrado2022 %>% 
+  tabyl(grupo)
+```
+
+Algunas opciones se pueden modificar dentro de la función cut
+
+```{r}
+concentrado2022 %<>% 
+  mutate(grupo=cut(edad_jefe,
+                   breaks=c(0, 25, 50, 75, 100),
+                   include.lowest=T,
+                   right= F))
+  
+       
+concentrado2022 %>% 
+  tabyl(grupo)
+
+```
+
+Esto nos puede ayudar para hacer variables de rangos de cualquier tipo.
+
+Otro tipo de variables muy importante son los quintiles y demás.
+
+```{r}
+concentrado2022 %<>%
+  mutate(quintil0=ntile(ing_cor, n=5))
+
+concentrado2022 %>% 
+  tabyl(quintil0)
+```
+
+Pero quizás nos interesa más los quintiles que toman en cuenta el factor de expansión
+
+```{r}
+
+concentrado2022 %<>%
+  mutate(quintil1=dineq::ntiles.wtd(ing_cor, n=5, weights=factor))
+
+concentrado2022 %>% 
+  tabyl(quintil1)
+
+concentrado2022 %>% 
+  count(quintil1, wt=factor) %>% 
+  mutate(p=n/sum(n)*100) %>%
+  adorn_totals()
+```
+
+Podemos también ver la diferencia en los máximos y minimos de ambas variables
+
+```{r}
+concentrado2022 %>% 
+  group_by(quintil0) %>% 
+  summarise(min=min(ing_cor),
+            max=max(ing_cor))
+```
+
+Veamos con la ponderación:
+
+```{r}
+concentrado2022 %>% 
+  group_by(quintil1) %>% 
+  summarise(min=min(ing_cor),
+            max=max(ing_cor))
+```
+
+La flexibilidad de dplyr nos permite además hacer quintiles fácilmente adentro de grupos. Por ejemplo si quisiéramos hacer quintiles estatales... Claro para eso debemos tener la variable.
+
+La variable "ubica_geo", nos da esa información pero junta
+
+```{r}
+concentrado2022 %>% 
+  select(ubica_geo) %>% 
+  head
+
+```
+
+Vamos a crear dos variables, uan que nos diga la entidad y la otra el municipio
+
+```{r}
+concentrado2022 %<>%
+  mutate(ent=stringr::str_sub(ubica_geo, start = 1, end = 2)) %>% 
+  mutate(mun=stringr::str_sub(ubica_geo, start = 3, end = 5))
+
+concentrado2022 %>% tabyl(ent)
+concentrado2022 %>% tabyl(mun)
+  
+```
+
+Hoy sí podemos hacer nuestras variables dentro de cada entidad federativa
+
+```{r}
+concentrado2022 %<>%
+  group_by(ent) %>% 
+  mutate(quintil2=dineq::ntiles.wtd(ing_cor, n=5, weights=factor)) %>% 
+  ungroup()
+```
+
+¿Discreparán muchos los hogares en sus distribuciones a nivel nacional y por entidad?
+
+
+```{r}
+concentrado2022 %>% 
+  tabyl(quintil1,quintil2) %>% 
+  adorn_totals(c("row", "col"))
+```
+
+Y si queremos este tabulado más bonito
+
+```{r}
+concentrado2022 %>% 
+  tabyl(quintil1,quintil2) %>% 
+  adorn_totals(c("row", "col")) %>% 
+  gt()
+```
+
+```
+concentrado2022 %>%
+tabyl(quintil1,quintil2) %>%
+adorn_totals(c("row", "col")) %>% 
+gt() %>% 
+tab_header( title = md("Distribución de los hogares en **México**"),
+            subtitle = md("Según quintiles y *quintiles*")) %>%
+tab_footnote( footnote = paste(get_label(concentrado2022\$ing_cor)))
+```
+
+
+## Recodificación de variables
+
+Por ejemplo, si quisiéramos hacer una variable que separara a los hogares de acuerdo al grupo etario del jefe
+
+### `dplyr::if_else()`
+
+```{r}
+concentrado2022 %<>% 
+  mutate(joven=dplyr::if_else(edad_jefe<30, 1, 0))
+
+concentrado2022 %>% tabyl(edad_jefe,joven)
+
+```
+
+### `dplyr::case_when()`
+
+Esto nos ayuda para recodificación múltiple
+
+```{r}
+concentrado2022 %<>% 
+  mutate(grupo_edad2=dplyr::case_when(edad_jefe<30 ~ 1,
+                                      edad_jefe>29 & edad_jefe<45 ~ 2,
+                                      edad_jefe>44 & edad_jefe<65 ~ 3,
+                                      edad_jefe>64 ~ 4))
+
+#TRUE~ 4
+
+concentrado2022 %>% tabyl(edad_jefe,grupo_edad2)
+
+```
+
+### `dplyr::rename()`
+
+Para cambiar los nombres de las variables podemos cambiarlos nombres
+
+```{r}
+concentrado2022 %<>%
+  dplyr::rename(nuevo_nombre=grupo_edad2)
+```
+
+Esto en base sería similar a 
+
+```{r}
+
+names(concentrado2022)[134]<-"grupo_edad2"
+names(concentrado2022)
+```
+
+## Descriptivos para variables cuantitativas
+
+Vamos a empezar a revisar los gráficos para variables cuantitativas.
+
+### Medidas numéricas básicas
+
+5 números
+
+```{r}
+summary(concentrado2022$ing_cor) ## ingresos
+```
+
+Con pipes se pueden crear "indicadores" de nuestras variables es un tibble
+
+```{r}
+concentrado2022 %>% 
+  summarise(nombre_indicador=mean(ing_cor, na.rm=T))
+```
+
+### Histograma básico
+
+```{r}
+hist(concentrado2022$ing_cor)
+```
+
+Le podemos modificar el título del eje de las x y de las y
+
+```{r}
+hist(concentrado2022$ing_cor, 
+     main="Histograma de los ingresos corrientes", 
+     xlab="pesos mexicanos", ylab="Frecuencia") 
+```
+
+¡A ponerle colorcitos! Aquí hay una lista <http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf>
+
+```{r}
+hist(concentrado2022$ing_cor, 
+     main="Histograma de los ingresos corrientes", 
+     xlab="pesos mexicanos", ylab="Frecuencia",
+     col="deeppink1") 
+```
+
+Con pipes:
+
+```{r}
+concentrado2022 %>% 
+    with(hist(ing_cor)) # con with, para que entienda
+```
+
+Cuando usamos pipes, se debe de recordar que no es necesario escribir el nombre del data.frame en el filtro porque es lo primero que colocamos en nuestro "pipe".
+
+Checa que cualquier aditamiento debe ir en el pipe donde está el comando de hist(). Ten cuidado con los paréntesis.
+
+```{r}
+concentrado2022 %>% 
+  filter(!is.na(ing_cor)) %>% # la ventaja de esta forma es que podemos hacer más operaciones
+    with(hist(ing_cor, main= "histograma"))
+```
+
+
+
+## Práctica
+
+-   Genere una variable de deciles en su base de datos
+
+-   Etiquete los valores de los deciles con números romanos
+
+-   Encuentre el coeficiente de variación para las estimaciones dentro de esa variable y dos variables más

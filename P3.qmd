@@ -1,6 +1,7 @@
 ---
 title: "Sesión 3"
 ---
+
 ## Presentación
 
 Aquí dejo la presentación
@@ -9,12 +10,9 @@ Aquí dejo la presentación
 
 </iframe>
 
-
 ## Fusionado de conjuntos de datos
 
-
 Vamos a trabajar con esta base de datos de la ENIGH 2022, que tiene tablas separadas.
-
 
 Las puedes descargar desde [aquí](https://www.dropbox.com/scl/fo/vft7ua44ihxhgr8sdwgn0/h?rlkey=5q1j1ryuexjqet3b0r782y86e&dl=0), son todas las que tiene sufijo "2022".
 
@@ -74,7 +72,6 @@ merge_data <- viviendas %>%
 
 
 ```
-
 
 Revisemos la base creada
 
@@ -154,12 +151,11 @@ ingresos %>%
 ```
 
 ¿Cuántas claves de ingreso hay?
+
 ```{r}
 ingresos %>% 
   tabyl(clave)
 ```
-
-
 
 ```{r}
 ingresos_sueldos<-ingresos %>% 
@@ -175,7 +171,7 @@ merge_data3<-merge(poblacion, ingresos_sueldos, by=c("folioviv", "foliohog", "nu
 dim(merge_data3)
 ```
 
-¡La base nueva no tiene a todas las observaciones, solo la que tiene en la base más pequeña! 
+¡La base nueva no tiene a todas las observaciones, solo la que tiene en la base más pequeña!
 
 ## Cuatro formas de hacer un fusionado
 
@@ -243,7 +239,6 @@ dim(merge_data3)
 
 ```
 
-
 El caso 2:
 
 ```{r}
@@ -253,7 +248,6 @@ merge_data3<-dplyr::full_join(poblacion,
 dim(merge_data3)
 
 ```
-
 
 El caso 3:
 
@@ -283,7 +277,6 @@ merge_data3<-poblacion %>% # pongo el conjunto que será la "izquierda
                     by=c("folioviv", "foliohog", "numren"))
 dim(merge_data3)
 ```
-
 
 ## Cheatsheet de `{dplyr}`
 
