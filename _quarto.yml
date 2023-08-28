@@ -4,8 +4,8 @@ project:
 
 website:
   title: "Uso de R para la demografía social"
-  site-url: https://fcpys.github.io/taller_meg/
-  repo-url: https://github.com/fcpys/taller_meg/
+  site-url: https://fcpys.github.io/R_Demo_2024_1/
+  repo-url: https://github.com/fcpys/R_Demo_2024_1/
   repo-branch: main
   repo-actions: [edit, issue]
   navbar:
@@ -23,7 +23,9 @@ website:
       - section: "Sesiones"
         contents:
           - P1.qmd
-
+          - P2.qmd
+          - P3.qmd
+          - P4.qmd
 
     
 format:
