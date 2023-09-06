@@ -219,6 +219,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <a href="./P4.html" class="sidebar-item-text sidebar-link">Sesión 4</a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P5.html" class="sidebar-item-text sidebar-link">Sesión 5</a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -469,8 +474,8 @@ sum&gt; sum(1:5, NA, na.rm = TRUE)
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gc</span>()           <span class="do">## Garbage collection, reporta memoria en uso</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-Ncells  603792 32.3    1316735 70.4         NA  1316735 70.4
-Vcells 1121661  8.6    8388608 64.0      16384  1851250 14.2</code></pre>
+Ncells  603794 32.3    1316801 70.4         NA  1316801 70.4
+Vcells 1121668  8.6    8388608 64.0      16384  1851365 14.2</code></pre>
 </div>
 </div>
 <p>Para borrar todos nuestros objetos, usamos el siguiente comando, que equivale a usar la escobita de la venta de environment</p>
@@ -490,17 +495,18 @@ Vcells 1121661  8.6    8388608 64.0      16384  1851250 14.2</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>()      <span class="co"># Lista de archivos en ese directorio</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] "LICENSE"                  "Mi_Exportación.xlsx"     
- [3] "P1.qmd"                   "P1.rmarkdown"            
- [5] "P2.qmd"                   "P3.qmd"                  
- [7] "P4.qmd"                   "README.md"               
- [9] "R_Demo_2024_1.Rproj"      "_quarto.yml"             
-[11] "datos"                    "docs"                    
-[13] "ima"                      "index.html"              
-[15] "index.qmd"                "instala.html"            
-[17] "instala.qmd"              "paquetes.R"              
-[19] "s3fusionado_ppt2023.pdf"  "s3fusionado_ppt2023.pptx"
-[21] "site_libs"               </code></pre>
+<pre><code> [1] "Erick.R"                  "LICENSE"                 
+ [3] "Mi_Exportación.xlsx"      "P1.qmd"                  
+ [5] "P1.rmarkdown"             "P2.qmd"                  
+ [7] "P3.qmd"                   "P4.qmd"                  
+ [9] "P5.qmd"                   "README.md"               
+[11] "R_Demo_2024_1.Rproj"      "_quarto.yml"             
+[13] "data_envipe2022.RData"    "datos"                   
+[15] "docs"                     "ima"                     
+[17] "index.html"               "index.qmd"               
+[19] "instala.html"             "instala.qmd"             
+[21] "paquetes.R"               "s3fusionado_ppt2023.pdf" 
+[23] "s3fusionado_ppt2023.pptx" "site_libs"               </code></pre>
 </div>
 </div>
 <p>Checar que esto también se puede hacer desde el menú:</p>

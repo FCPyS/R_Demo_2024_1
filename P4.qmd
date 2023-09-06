@@ -2,7 +2,7 @@
 title: "Sesión 4"
 ---
 
-## Análisis descriptivo (I)
+# Análisis descriptivo (I)
 
 Vamos a llamar algunas paquetes que nos ayudarán en esta práctica
 
@@ -23,7 +23,7 @@ pacman::p_load(tidyverse,
 )
 ```
 
-
+## Datos 
 E importamos la base
 
 ```{r}
@@ -48,7 +48,7 @@ concentrado2022 %>%
     )
 ```
 
-#### Recordemos nuestro etiquetado
+### Recordemos nuestro etiquetado
 
 ```{r}
 etiqueta_sex<-c("Hombre", "Mujer")
@@ -112,7 +112,7 @@ concentrado2022 %>% mutate(sexo_jefe=as_label(sexo_jefe)) %>% # cambia los valor
                 
 ```
 
-La tubería o "pipe" `%>%` nos permite ir agregando elementos de manera sencilla nuestros comandos. En este caso decimos que dentro del objeto haga el cambio, luego la tabla, que le ponga porcentajes y finalmente que nos dé los totales. 
+La tubería o "pipe" `%>%` nos permite ir agregando elementos de manera sencilla nuestros comandos. En este caso decimos que dentro del objeto haga el cambio, luego la tabla, que le ponga porcentajes y finalmente que nos dé los totales.
 
 ### Variables ordinales
 
@@ -143,7 +143,6 @@ concentrado2022 <-concentrado2022 %>%
                       "Posgrado"))
 ```
 
-
 Hoy hacemos la tabla, con las etiquetas y vemos que se ve más bonita:
 
 ```{r}
@@ -152,7 +151,7 @@ concentrado2022 %>%
   tabyl(educa_jefe)
 ```
 
-Para que no nos salgan las categorías sin datos podemos *apagar* la  opción `show_missing_levels=F` dentro del comando "tabyl()"
+Para que no nos salgan las categorías sin datos podemos *apagar* la opción `show_missing_levels=F` dentro del comando "tabyl()"
 
 ```{r}
 concentrado2022 %>% 
@@ -261,7 +260,7 @@ concentrado2022 %>%
   adorn_totals()  # Agrega total
 ```
 
-Podemos usar funciones de `adorns...` de `{janitor}
+Podemos usar funciones de `adorns...` de \`{janitor}
 
 ```{r}
 concentrado2022 %>% 
@@ -272,11 +271,9 @@ concentrado2022 %>%
   adorn_pct_formatting()
 ```
 
+### Con `dplyr::count()`
 
-
-## Otras formas
-
-La función "count()" también permite dar pesos
+La función `count()` también permite dar pesos a la operaciones de frecuencias, con el argumento `wt =`
 
 ```{r}
 concentrado2022 %>% 
@@ -294,6 +291,7 @@ concentrado2022 %>%
 ### con `{pollster}`
 
 Para una variable
+
 ```{r}
 # tabulado simple con factor de expansión
 
@@ -304,8 +302,8 @@ concentrado2022 %>%
 
 ```
 
-
 Para dos variables
+
 ```{r}
 # tabulado simple con factor de expansión
 
@@ -393,9 +391,9 @@ ags_srvy %>%
             total = survey_total() ) # totales
 ```
 
-## Creación de quintiles y otros grupos
+## Creación de intervalos con cortes
 
-Uno de los elementos más comunes es crear grupos. Por ejemplo, la función cut, nos ayuda a crear variables con ciertos cortes. Por ejemplo, para recodificar por grupos etarios
+Uno de los elementos más comunes es crear grupos. Por ejemplo, la función `cut()`, nos ayuda a crear variables con ciertos cortes. Por ejemplo, para recodificar por grupos etarios
 
 ```{r}
 concentrado2022 %<>% 
@@ -407,7 +405,7 @@ concentrado2022 %>%
   tabyl(grupo)
 ```
 
-Algunas opciones se pueden modificar dentro de la función cut
+Algunas opciones se pueden modificar dentro de la función `cut()`
 
 ```{r}
 concentrado2022 %<>% 
@@ -424,7 +422,9 @@ concentrado2022 %>%
 
 Esto nos puede ayudar para hacer variables de rangos de cualquier tipo.
 
-Otro tipo de variables muy importante son los quintiles y demás.
+## Creación de quintiles
+
+Otro tipo de variables de intervalos muy importante son los quintiles y otras medidas de posición.
 
 ```{r}
 concentrado2022 %<>%
@@ -434,12 +434,14 @@ concentrado2022 %>%
   tabyl(quintil0)
 ```
 
-Pero quizás nos interesa más los quintiles que toman en cuenta el factor de expansión
+Pero quizás nos interesa más los quintiles que toman en cuenta el factor de expansión, por eso usamos el paquete `{dineq}`
 
 ```{r}
 
 concentrado2022 %<>%
-  mutate(quintil1=dineq::ntiles.wtd(ing_cor, n=5, weights=factor))
+  mutate(quintil1=dineq::ntiles.wtd(ing_cor, # variable a utilizar
+                                    n=5, # número de grupos equitativos
+                                    weights=factor)) # factor
 
 concentrado2022 %>% 
   tabyl(quintil1)
@@ -502,7 +504,6 @@ concentrado2022 %<>%
 
 ¿Discreparán muchos los hogares en sus distribuciones a nivel nacional y por entidad?
 
-
 ```{r}
 concentrado2022 %>% 
   tabyl(quintil1,quintil2) %>% 
@@ -518,7 +519,7 @@ concentrado2022 %>%
   gt()
 ```
 
-```
+```         
 concentrado2022 %>%
 tabyl(quintil1,quintil2) %>%
 adorn_totals(c("row", "col")) %>% 
@@ -527,115 +528,6 @@ tab_header( title = md("Distribución de los hogares en **México**"),
             subtitle = md("Según quintiles y *quintiles*")) %>%
 tab_footnote( footnote = paste(get_label(concentrado2022\$ing_cor)))
 ```
-
-
-## Recodificación de variables
-
-Por ejemplo, si quisiéramos hacer una variable que separara a los hogares de acuerdo al grupo etario del jefe
-
-### `dplyr::if_else()`
-
-```{r}
-concentrado2022 %<>% 
-  mutate(joven=dplyr::if_else(edad_jefe<30, 1, 0))
-
-concentrado2022 %>% tabyl(edad_jefe,joven)
-
-```
-
-### `dplyr::case_when()`
-
-Esto nos ayuda para recodificación múltiple
-
-```{r}
-concentrado2022 %<>% 
-  mutate(grupo_edad2=dplyr::case_when(edad_jefe<30 ~ 1,
-                                      edad_jefe>29 & edad_jefe<45 ~ 2,
-                                      edad_jefe>44 & edad_jefe<65 ~ 3,
-                                      edad_jefe>64 ~ 4))
-
-#TRUE~ 4
-
-concentrado2022 %>% tabyl(edad_jefe,grupo_edad2)
-
-```
-
-### `dplyr::rename()`
-
-Para cambiar los nombres de las variables podemos cambiarlos nombres
-
-```{r}
-concentrado2022 %<>%
-  dplyr::rename(nuevo_nombre=grupo_edad2)
-```
-
-Esto en base sería similar a 
-
-```{r}
-
-names(concentrado2022)[134]<-"grupo_edad2"
-names(concentrado2022)
-```
-
-## Descriptivos para variables cuantitativas
-
-Vamos a empezar a revisar los gráficos para variables cuantitativas.
-
-### Medidas numéricas básicas
-
-5 números
-
-```{r}
-summary(concentrado2022$ing_cor) ## ingresos
-```
-
-Con pipes se pueden crear "indicadores" de nuestras variables es un tibble
-
-```{r}
-concentrado2022 %>% 
-  summarise(nombre_indicador=mean(ing_cor, na.rm=T))
-```
-
-### Histograma básico
-
-```{r}
-hist(concentrado2022$ing_cor)
-```
-
-Le podemos modificar el título del eje de las x y de las y
-
-```{r}
-hist(concentrado2022$ing_cor, 
-     main="Histograma de los ingresos corrientes", 
-     xlab="pesos mexicanos", ylab="Frecuencia") 
-```
-
-¡A ponerle colorcitos! Aquí hay una lista <http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf>
-
-```{r}
-hist(concentrado2022$ing_cor, 
-     main="Histograma de los ingresos corrientes", 
-     xlab="pesos mexicanos", ylab="Frecuencia",
-     col="deeppink1") 
-```
-
-Con pipes:
-
-```{r}
-concentrado2022 %>% 
-    with(hist(ing_cor)) # con with, para que entienda
-```
-
-Cuando usamos pipes, se debe de recordar que no es necesario escribir el nombre del data.frame en el filtro porque es lo primero que colocamos en nuestro "pipe".
-
-Checa que cualquier aditamiento debe ir en el pipe donde está el comando de hist(). Ten cuidado con los paréntesis.
-
-```{r}
-concentrado2022 %>% 
-  filter(!is.na(ing_cor)) %>% # la ventaja de esta forma es que podemos hacer más operaciones
-    with(hist(ing_cor, main= "histograma"))
-```
-
 
 
 ## Práctica

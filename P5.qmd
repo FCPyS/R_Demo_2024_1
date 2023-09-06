@@ -1,0 +1,401 @@
+---
+title: "Sesión 5"
+---
+
+# Análisis descriptivo (II)
+
+Vamos a llamar algunas paquetes que nos ayudarán en esta práctica
+
+```{r}
+if (!require("pacman")) install.packages("pacman") # instala pacman si se requiere
+pacman::p_load(tidyverse,
+               writexl, 
+               haven,
+               sjlabelled, 
+               janitor,
+               magrittr,
+               GGally,
+               wesanderson,
+               gt,
+               pollster,
+               srvyr,
+               dineq, 
+               collapse # ojo
+)
+```
+
+## Datos
+E importamos la base e incluimos los cambios anteriores
+
+```{r}
+etiqueta_sex<-c("Hombre", "Mujer")
+
+concentrado2022 <- haven::read_dta("datos/concentrado2022.dta")  %>% 
+  mutate(sexo_jefe=as.numeric(sexo_jefe)) %>% # para quitar el "string"
+  sjlabelled::set_labels(sexo_jefe, labels=etiqueta_sex) %>% 
+  mutate(clase_hog=as.numeric(clase_hog)) %>% # para quitar el "string"
+  sjlabelled::set_labels(clase_hog, labels=c("unipersonal",
+                                             "nuclear", 
+                                             "ampliado",
+                                             "compuesto",
+                                             "corresidente")) %>% 
+  mutate(educa_jefe=as.numeric(educa_jefe)) %>% 
+  set_labels(educa_jefe,
+             labels=c("Sin instrucción", 
+                      "Preescolar",
+                      "Primaria incompleta",
+                      "Primaria completa",
+                      "Secundaria incompleta",
+                      "Secundaria completa",
+                      "Preparatoria incompleta",
+                      "Preparatoria completa",
+                      "Profesional incompleta",
+                      "Profesional completa",
+                      "Posgrado"))
+```
+
+También importemos la base de población 
+
+```{r}
+poblacion2022 <- haven::read_dta("datos/poblacion2022.dta")  
+
+```
+
+## Recodificación de variables
+
+Por ejemplo, si quisiéramos hacer una variable que separara a los hogares de acuerdo al grupo etario del jefe
+
+### `dplyr::if_else()`
+
+```{r}
+concentrado2022 %<>% 
+  mutate(joven=dplyr::if_else(edad_jefe<30, 1, 0))
+
+concentrado2022 %>% tabyl(edad_jefe,joven)
+
+```
+
+### `dplyr::case_when()`
+
+Esto nos ayuda para recodificación múltiple
+
+```{r}
+concentrado2022 %<>% 
+  mutate(grupo_edad2=dplyr::case_when(edad_jefe<30 ~ 1,
+                                      edad_jefe>29 & edad_jefe<45 ~ 2,
+                                      edad_jefe>44 & edad_jefe<65 ~ 3,
+                                      edad_jefe>64 ~ 4))
+
+#TRUE~ 4
+
+concentrado2022 %>% tabyl(edad_jefe,grupo_edad2)
+
+```
+
+### `dplyr::rename()`
+
+Para cambiar los nombres de las variables podemos cambiarlos nombres
+
+```{r}
+concentrado2022 %<>%
+  dplyr::rename(nuevo_nombre=grupo_edad2)
+```
+
+Esto en base sería similar a
+
+```{r}
+
+names(concentrado2022)[128]<-"grupo_edad2"
+names(concentrado2022)
+```
+
+
+## Selecciones y filtros avanzados
+
+En prácticas pasadas ya revisamos las selecciones y los filtros pero avanzaremos.
+
+### Selecciones con "ayudadores" y  _Wildcards_ 
+
+Tenemos a veces variables que inician o terminan igual porque son parte de una sección, podemos elegir las variables de esa forma:
+
+```{r}
+concentrado2022 %>% 
+  select(starts_with("ing"))
+```
+
+Que tenga la cadena en cualquier parte del nombre
+```{r}
+concentrado2022 %>% 
+  select(matches("ing"))
+```
+
+
+Que tenga la cadena en la parte final
+```{r}
+concentrado2022 %>% 
+  select(matches("hog"))
+```
+
+### Filtros con `%in%` y operadores de negación
+
+Si queremos seleccionar varios elementos en un solo comando, podemos utilizar `%in%` seguido de un vector de las opciones a señalar. 
+
+Supongamos que nos queremos quedar con los datos de dos entidades. Con esta excusa también aprenderemos a usar una función para extraer de las cadenas
+
+```{r}
+concentrado2022 %<>% 
+  mutate(ent=stringr::str_sub(folioviv, start=1, end=2 ))
+```
+
+Más del paquete `{stringr}` [aquí](https://stringr.tidyverse.org/)
+
+```{r}
+concentrado2022 %>% 
+  filter(ent%in%c("09", "15"))
+```
+
+Si queremos *negar* esta relación o casi cualquier otro filtro:
+
+
+```{r}
+concentrado2022 %>% 
+  filter(!ent%in%c("09", "15"))
+```
+
+### `is.na` y sus primos
+
+Si intentamos por ejemplo hacer un filtro para quitar los valores perdidos, no se puede hacer con `var==NA`
+
+Hay un operador especial para decirnos si un valor es perdido o no. 
+
+```{r}
+vector<-c(1:5, NA, sqrt(-1), 5/0, -5/0)
+
+vector
+```
+
+```{r}
+is.na(vector)
+```
+
+
+```{r}
+is.nan(vector)
+```
+
+```{r}
+is.infinite(vector)
+```
+
+Como son condiciones, funcionan como filtros, esto es útil para quitarnos algunos valores perdidos de análisis
+
+```{r}
+concentrado2022 %>% 
+  filter(!is.na(ing_cor)) # no hay perdidos, hay 0
+```
+
+
+## Agregados 
+
+### Agregados como nuevo dataframe
+
+El paquete `{collapse}` tiene muchas funciones para agregar datos. Esta es una operación que puede ser útil cuando queremos pasar de unidades más pequeñas a más grandes. 
+
+Supongamos que necesitamos el total de personas mayores de 64 en cada hogar para pegárselo al concentrado:
+
+
+```{r}
+poblacion2022 %>% 
+  mutate(p65m=edad>64) %>% 
+  select(folioviv, foliohog, p65m) %>% 
+  group_by(folioviv, foliohog) %>% 
+  collapse::fsum() ->p65m_hog
+
+```
+
+`fsum()` permite utilizar pesos y además hará la suma para cualquier variable. Por ejemplo podríamos dejar crear una variable para el tamaño del hogar
+
+
+
+```{r}
+poblacion2022 %>% 
+  mutate(p65m=edad>64) %>% 
+  mutate(residente=1) %>% 
+  select(folioviv, foliohog, p65m, residente) %>% 
+  group_by(folioviv, foliohog) %>% 
+  collapse::fsum() ->pob_hog
+
+```
+
+También hay otros comandos para hacer promedios y más
+
+
+```{r}
+poblacion2022 %>% 
+  select(folioviv, foliohog, edad, ) %>% 
+  group_by(folioviv, foliohog) %>% 
+  collapse::fmean() ->eda_hog
+
+```
+
+
+### Agregados dentro del mismo dataframe
+
+En sociodemografía es muy muy común que nos importen algunas condiciones e interrelaciones entre los miembros de un hogar. Entonces a veces estudiamos los atributos del hogar como variables de cada individuo, por lo que necesitamos que estén en la misma base. 
+
+Podríamos hacer el merge de los _dataframes_ creados en el apartado anterior y los de población, pero también podemos hacer  los estimados dentro de la misma base, así que crearemos variables nuevas 
+
+
+```{r}
+poblacion2022 %<>% 
+  group_by(folioviv, foliohog) %>% 
+  mutate(mean_edad=mean(edad)) %>% 
+  ungroup() # esto es importante
+
+
+```
+Equivalente
+
+```{r}
+poblacion2022 %<>% 
+  mutate(mean_edad=mean(edad), .by= c(folioviv, foliohog))
+
+
+```
+
+El puntito en `.by` es fundamental, sin eso queda agrupado
+
+Podemos hacer también más operaciones
+
+```{r}
+poblacion2022 %<>% 
+  group_by(folioviv, foliohog) %>% 
+  mutate(mean_edad=mean(edad)) %>% 
+  ungroup()
+
+
+```
+
+## _at muchas operaciones de `{dplyr}`
+
+Este es un sufijo que funciona en algunos verbos de `{dplyr}` y permite hacer una operación en varias variables al mismo tiempo, funciona con vars()
+
+###  `dplyr::mutate_at()`
+
+```{r}
+concentrado2022 %>% 
+  dplyr::mutate_at(vars(clase_hog, sexo_jefe), ~ as_label(.x)) %>% # ojo con la coma y con el punto
+  tabyl(clase_hog, sexo_jefe)
+```
+
+###  `dplyr::rename_at()`
+
+Primero revisemos la opción paste y paste0
+```{r}
+paste("a","b", sep="_")
+paste("a","b")
+paste0("a","b")
+
+```
+
+
+
+
+```{r}
+concentrado2022 %>% 
+  dplyr::rename_at(vars(clase_hog, sexo_jefe), ~ paste0(.x, "_2022")) %>% # sufijo
+  select(clase_hog_2022, sexo_jefe_2022)
+```
+
+```{r}
+concentrado2022 %>% 
+  dplyr::rename_at(vars(clase_hog, sexo_jefe), ~ paste0("desc_", .x)) %>% # prefijo
+  select(starts_with("desc"))
+```
+
+## Descriptivos para variables cuantitativas
+
+Vamos a empezar a revisar los gráficos para variables cuantitativas.
+
+### Medidas numéricas básicas
+
+5 números
+
+```{r}
+summary(concentrado2022$ing_cor) ## ingresos
+```
+
+Con pipes se pueden crear "indicadores" de nuestras variables es un tibble, tal como lo hicimos con el diseño complejo
+
+```{r}
+concentrado2022 %>% 
+  dplyr::summarise(nombre_indicador=mean(ing_cor, na.rm=T)) # las funciones también pueden tener atributos
+```
+
+Funciona con `group_by()` y con `.by()`
+
+
+```{r}
+concentrado2022 %>% 
+  dplyr::summarise(nombre_indicador=mean(ing_cor, na.rm=T), .by=ent) # las funciones también pueden tener atributos
+```
+
+
+```{r}
+concentrado2022 %>% 
+  dplyr::summarise_at(vars(contains("ing")), ~ mean(.x)) # las funciones también pueden tener atributos
+```
+
+
+### Gráficas básicas
+
+```{r}
+hist(concentrado2022$ing_cor)
+
+boxplot(concentrado2022$ing_cor)
+
+
+```
+
+Le podemos modificar el título del eje de las x y de las y
+
+```{r}
+hist(concentrado2022$ing_cor, 
+     main="Histograma de los ingresos corrientes", 
+     xlab="pesos mexicanos", ylab="Frecuencia") 
+```
+
+¡A ponerle colorcitos! Aquí hay una lista <http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf>
+
+```{r}
+hist(concentrado2022$ing_cor, 
+     main="Histograma de los ingresos corrientes", 
+     xlab="pesos mexicanos", ylab="Frecuencia",
+     col="deeppink1") 
+```
+
+Con pipes:
+
+```{r}
+concentrado2022 %>% 
+    with(hist(ing_cor)) # con with, para que entienda
+```
+
+Cuando usamos pipes, se debe de recordar que no es necesario escribir el nombre del data.frame en el filtro porque es lo primero que colocamos en nuestro "pipe".
+
+Checa que cualquier aditamiento debe ir en el pipe donde está el comando de hist(). Ten cuidado con los paréntesis.
+
+```{r}
+concentrado2022 %>% 
+  filter(!is.na(ing_cor)) %>% # la ventaja de esta forma es que podemos hacer más operaciones
+    with(hist(ing_cor, main= "histograma"))
+```
+
+
+
+## Intro a la correlación
+
+```{r}
+plot(concentrado2022$ing_cor, concentrado2022$gasto_mon)
+```
+
