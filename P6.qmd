@@ -186,7 +186,7 @@ g_bivariado <- g1 +
 g_bivariado
 ```
 
-##Escalas de color
+## Escalas de color
 
 ### `{RcolorBrewer}` 
 
@@ -265,7 +265,7 @@ Para los gráficos "cuanti-cuanti", iniciamos con un gráfico de dispersión o *
 concentrado2022 %>% 
   ggplot() +
   aes(x=ing_cor,
-      y=gasto_mon)
+      y=gasto_mon) +
   geom_point() #puntito
 
 ```
@@ -297,7 +297,9 @@ concentrado2022 %>%
 ```{r}
 
 concentrado2022 %>% 
-  ggplot(aes(ing_cor,gasto_mon)) +
+  ggplot() +
+  aes(x=ing_cor,
+      y=gasto_mon) +
   geom_label(aes(label=ent)) ## etiqueta
 ```
 
@@ -345,7 +347,8 @@ Con *facet_wrap*, columna
 concentrado2022 %>% 
   ggplot(aes(x=ing_cor,
              y=gasto_mon)) +
-  geom_point() + facet_grid(.~tam_loc)
+  geom_point() +
+  facet_grid(.~tam_loc)
 
 ```
 
@@ -419,8 +422,13 @@ concentrado2022 %>%
 
 ## Ejercicio
 
-1.  Realiza dos gráficos. Uno de una sola variable y otro con dos variables, el que sea de tu agrado, con las variables que te sientes cómoda o cómodo, en la base de datos de tu elección
-* Puedes modificarlo usando el paquete "esquisse". 
+
+Realiza **dos** gráficos. 
+1. Uno de una sola variable
+2. otro con dos variables, el que sea de tu agrado, con las variables que te sientes cómoda o cómodo, en la base de datos de tu elección
+
+* Puedes modificarlo usando el paquete `{esquisse}`. 
 Envía las imágenes 
+
 Envía el script
 
