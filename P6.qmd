@@ -1,0 +1,426 @@
+---
+title: "Sesión 6"
+---
+
+# Visualización de datos
+
+## Paquetes
+
+```{r}
+if (!require("pacman")) install.packages("pacman") # instala pacman si se requiere
+pacman::p_load(tidyverse,
+               writexl, 
+               haven,
+               sjlabelled, 
+               janitor,
+               magrittr,
+               GGally,
+               wesanderson,
+               RColorBrewer,
+               viridis,
+               ggthemes,
+               esquisse
+)
+```
+
+## Datos
+E importamos la base e incluimos los cambios anteriores
+
+```{r}
+etiqueta_sex<-c("Hombre", "Mujer")
+
+concentrado2022 <- haven::read_dta("datos/concentrado2022.dta")  %>% 
+  mutate(sexo_jefe=as.numeric(sexo_jefe)) %>% # para quitar el "string"
+  sjlabelled::set_labels(sexo_jefe, labels=etiqueta_sex) %>% 
+  mutate(clase_hog=as.numeric(clase_hog)) %>% # para quitar el "string"
+  sjlabelled::set_labels(clase_hog, labels=c("unipersonal",
+                                             "nuclear", 
+                                             "ampliado",
+                                             "compuesto",
+                                             "corresidente")) %>% 
+  mutate(educa_jefe=as.numeric(educa_jefe)) %>% 
+  set_labels(educa_jefe,
+             labels=c("Sin instrucción", 
+                      "Preescolar",
+                      "Primaria incompleta",
+                      "Primaria completa",
+                      "Secundaria incompleta",
+                      "Secundaria completa",
+                      "Preparatoria incompleta",
+                      "Preparatoria completa",
+                      "Profesional incompleta",
+                      "Profesional completa",
+                      "Posgrado")) %>% 
+    mutate(ent=stringr::str_sub(folioviv, start=1, end=2 ))
+  
+```
+
+
+
+## ¿Cuál es el mejor gráfico?
+Hay cursos específicos de visualización de datos. Es maravilloso pero también requiere que estudiemos bien qué tipo de datos tenemos y cuáles son nuestros objetivos. 
+
+Me gusta mucho este recurso: <https://www.data-to-viz.com/>
+
+## Gráficos de `{graphics}`
+
+"plot()" Es la función más simple. Y es otro comando "listo"
+
+```{r}
+  plot(as_label(concentrado2022$sexo_jefe))
+```
+
+Esto es igual que:
+
+```{r}
+barplot(table(as_label(concentrado2022$sexo_jefe)))
+```
+
+## Gráficos con `{ggplot2}`
+
+Hoy vamos a presentar a un gran paquete ¡Es de los famosos! Y tiene más de diez años.
+
+* <https://qz.com/1007328/all-hail-ggplot2-the-code-powering-all-those-excellent-charts-is-10-years-old/>
+
+"gg" proviene de "Grammar of Graphics", funciona un poco como sintácticamente, de ahí su nombre.
+
+Algunos recursos para aprender ggplot
+
+* <https://ggplot2-book.org/> hecha por el mero mero.
+
+* <http://sape.inf.usi.ch/quick-reference/ggplot2> 
+
+* <https://raw.githubusercontent.com/rstudio/cheatsheets/master/data-visualization-2.1.pdf>
+
+Vamos a revisar una presentación que es muy interesante
+
+* <https://evamaerey.github.io/ggplot2_grammar_guide/ggplot2_grammar_guide.html>
+
+* <https://huygens.science.uva.nl/ggPlotteR/> Hace gráficos de ggplot con la base de datos de Gapminder
+
+## Un lienzo para dibujar
+
+Para hacer un gráfico, `{ggplot2}` tiene el comando `ggplot()`.  Hacer gráficos con esta función tiene una lógica  aditiva. Lo ideal es que iniciemos estableciendo el mapeo estético de nuestro gráfico, con el comando aes()
+
+```{r}
+concentrado2022 %>%
+  ggplot2::ggplot() + # ojo es un +
+  aes(x= as_label(sexo_jefe))
+
+g1<-concentrado2022 %>%
+  ggplot2::ggplot() + # ojo es un +
+  aes(x= as_label(sexo_jefe))
+
+g1 ## imprime el lienzo
+```
+
+
+## Gráficos univariados
+
+### Para cualitativas
+
+Sabemos que la mejor son las barras
+
+```{r}
+g1 +
+  geom_bar()
+```
+
+
+```{r}
+g1 +  geom_bar(aes(
+  fill = as_label(sexo_jefe)
+  )) ## colorea la geometría
+
+## Esto es equivalente
+
+concentrado2022 %>%
+  ggplot(aes(as_label(sexo_jefe),
+             fill = as_label(sexo_jefe)
+             )
+         ) + geom_bar()
+
+```
+
+### Para variables cuantitativas
+Podemos hacer histogramas y gráficos de densidad, de manera fácil. La idea es agregar en nuestro "lienzo" una geometría, un valor para dibujar en él. Esto se agrega con un "+" y con la figura que se añadirá a nuestro gráfico.
+
+```{r}
+g2<-concentrado2022 %>%
+  ggplot(aes(ing_cor))
+
+g2 ## imprime el lienzo
+```
+
+#### Histograma
+
+```{r}
+g2 + geom_histogram() 
+```
+
+
+#### Densidad
+```{r}
+g2 + geom_density()
+```
+
+
+## Gráficos bivariados
+
+### Cuali-cuali
+
+
+```{r}
+g1 +  geom_bar(aes(fill = as_label(clase_hog)),
+              position="dodge") #pone las categorías lado a lado y no apiladas
+
+```
+
+Otra manera interesante de observar estas variables, es que estando apiladas, cada categoría de escolaridad se entendiera como una unidad:
+
+```{r}
+g_bivariado <- g1 +  
+  geom_bar(aes(fill = as_label(clase_hog)),
+              position="fill") ## cada categoría "llena" a una unidad
+
+g_bivariado
+```
+
+##Escalas de color
+
+### `{RcolorBrewer}` 
+
+```{r}
+RColorBrewer::display.brewer.all()
+```
+
+
+```{r}
+
+g_bivariado + scale_fill_brewer(palette = "Dark2")
+```
+
+### `{viridis}` 
+
+
+```{r}
+g_bivariado + scale_fill_viridis_d()
+```
+
+
+### `{wesanderson}` 
+```{r}
+wesanderson::wes_palettes
+```
+
+
+```{r}
+wesanderson::wes_palette("IsleofDogs1", n=5)
+mi_paleta <- wesanderson::wes_palette("IsleofDogs1", n=5)
+```
+
+
+```{r}
+g_bivariado + scale_fill_manual(values=mi_paleta)
+```
+
+## Temas
+
+Cambiamos el tema:
+
+```{r}
+g_bivariado + scale_fill_brewer(palette = "Dark2") + theme_minimal()
+
+```
+
+Si queremos que sean horizontales (como debe ser) 
+
+```{r}
+g_bivariado + 
+  scale_fill_brewer(palette = "Dark2") +
+  theme_minimal() +
+  coord_flip()
+
+```
+
+
+## Un atajo `{esquisse}`
+
+Si la lógica de las capas y lienzos  parece un poco complicada para graficar con `{ggplot2}`, el paquete "esquisse" tiene un complemento. Cuando lo instalamos con pacman más arriba, se puede observar el complemento:
+
+Hoy desde el complemento podemos acceder a el siguiente menú y seleccionar nuestra base.
+
+![En tu barra de íconos de Rstudio](ima/esquisse.png)
+
+Una vez seleccionada, puedes hacer "drag and drop" de las variables y elegir el tipo de gráfico, incluso puedes hacer filtro con las variables disponibles
+
+Puedes exportar esto a una imagen, a powerpoint o como código a ejecutar en RStudio. Esta herramienta es muy útil para irnos acostumbrando al código de ggplot que puede ser bastante complicado en los primeros acercamientos
+
+## Gráficos bivariados
+Para los gráficos "cuanti-cuanti", iniciamos con un gráfico de dispersión o *scatter*
+
+### *scatterplot*
+
+```{r}
+concentrado2022 %>% 
+  ggplot() +
+  aes(x=ing_cor,
+      y=gasto_mon)
+  geom_point() #puntito
+
+```
+
+### geometría "jitter"
+
+```{r}
+concentrado2022 %>% 
+  ggplot() +
+  aes(x=ing_cor,
+      y=gasto_mon,
+      alpha= I(0.2))+
+  geom_jitter() ## puntito pero "separado"
+
+```
+
+```{r}
+
+concentrado2022 %>% 
+  ggplot() +
+  aes(x=ing_cor,
+      y=gasto_mon) +
+  geom_text(aes(label=ent)) ## un texto en lugar de punto
+
+```
+
+### geometría "label"
+
+```{r}
+
+concentrado2022 %>% 
+  ggplot(aes(ing_cor,gasto_mon)) +
+  geom_label(aes(label=ent)) ## etiqueta
+```
+
+### Ya no es tan bivariado
+
+Con *color*
+
+```{r}
+
+concentrado2022 %>% 
+  ggplot(aes(x=ing_cor,
+             y=gasto_mon,
+             color=tam_loc)
+         ) +
+  geom_point()
+```
+
+Con *shape*
+
+```{r}
+
+concentrado2022 %>% 
+  ggplot(aes(x=ing_cor,
+             y=gasto_mon,
+             shape=tam_loc)
+  ) +
+  geom_point() ## ojo, nos da un "warning"
+```
+
+### *facets*
+
+Con *facet_wrap*
+
+```{r}
+
+concentrado2022 %>% 
+  ggplot(aes(x=ing_cor,
+             y=gasto_mon)) +
+  geom_point() + facet_wrap(~tam_loc)
+```
+
+Con *facet_wrap*, columna
+
+```{r}
+concentrado2022 %>% 
+  ggplot(aes(x=ing_cor,
+             y=gasto_mon)) +
+  geom_point() + facet_grid(.~tam_loc)
+
+```
+
+Con *facet_wrap*, fila
+
+```{r}
+concentrado2022 %>% 
+  ggplot(aes(x=ing_cor,
+             y=gasto_mon)) +
+  geom_point() +
+  facet_grid(tam_loc~.)
+```
+
+### Ajustes *smooth*
+
+```{r}
+concentrado2022 %>% 
+  ggplot(aes(x=ing_cor,
+             y=gasto_mon)) +
+  geom_point() +
+  geom_smooth(method="lm") +
+  facet_grid(tam_loc~.)
+```
+
+Enchulando tantito:
+```{r}
+concentrado2022 %>% 
+  ggplot(aes(x=ing_cor,
+             y=gasto_mon,
+             color=tam_loc)) +
+  geom_text(aes(label=ent)) +
+  geom_smooth(method="lm") + scale_fill_brewer(palette = "Dark2") +
+  theme_minimal()
+```
+
+### Una cuarta variable
+
+```{r}
+concentrado2022 %>% 
+  ggplot(aes(x=ing_cor,
+             y=gasto_mon,
+             color=tam_loc)) +
+  geom_point(aes(size=tot_integ))+ ## ojo
+  theme_minimal()
+```
+
+No es lo mismo, pero es igual:
+
+```{r}
+concentrado2022 %>% 
+  ggplot(aes(x=ing_cor,
+             y=gasto_mon,
+             color=tam_loc,
+             size=tot_integ)) +
+  geom_point()+ 
+  theme_minimal()
+```
+
+Algunas opciones interesantes:
+```{r}
+concentrado2022 %>% 
+  ggplot(aes(x=ing_cor,
+             y=gasto_mon,
+             color=tam_loc,
+             size=tot_integ)) +
+  geom_text(aes(label=ent),
+            check_overlap = TRUE)+
+  theme_minimal()
+```
+
+
+## Ejercicio
+
+1.  Realiza dos gráficos. Uno de una sola variable y otro con dos variables, el que sea de tu agrado, con las variables que te sientes cómoda o cómodo, en la base de datos de tu elección
+* Puedes modificarlo usando el paquete "esquisse". 
+Envía las imágenes 
+Envía el script
+

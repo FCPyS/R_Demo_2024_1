@@ -4,6 +4,8 @@ title: "Sesión 5"
 
 # Análisis descriptivo (II)
 
+## Paquetes 
+
 Vamos a llamar algunas paquetes que nos ayudarán en esta práctica
 
 ```{r}
