@@ -1,0 +1,397 @@
+---
+title: "Sesión 7"
+---
+## Inferencia estadística
+
+### Paquetes
+
+```{r}
+
+if (!require("pacman")) install.packages("pacman") ## instala pacman si se requiere
+pacman::p_load(tidyverse,
+               writexl, 
+               haven,
+               sjlabelled, 
+               janitor,
+               magrittr,
+               viridis,
+               ggthemes,
+               ggpubr,
+               DescTools, ## Paquete con pruebas estadísticas
+               infer, ## inferencia compatible con formato tidy
+               broom ## paquete para volver _tidy_ resultados
+)
+```
+
+### Datos
+E importamos la base e incluimos los cambios anteriores
+
+```{r}
+etiqueta_sex<-c("Hombre", "Mujer")
+
+concentrado2022 <- haven::read_dta("datos/concentrado2022.dta")  %>% 
+  mutate(sexo_jefe=as.numeric(sexo_jefe)) %>% ## para quitar el "string"
+  sjlabelled::set_labels(sexo_jefe, labels=etiqueta_sex) %>% 
+  mutate(clase_hog=as.numeric(clase_hog)) %>% ## para quitar el "string"
+  sjlabelled::set_labels(clase_hog, labels=c("unipersonal",
+                                             "nuclear", 
+                                             "ampliado",
+                                             "compuesto",
+                                             "corresidente")) %>% 
+  mutate(educa_jefe=as.numeric(educa_jefe)) %>% 
+  set_labels(educa_jefe,
+             labels=c("Sin instrucción", 
+                      "Preescolar",
+                      "Primaria incompleta",
+                      "Primaria completa",
+                      "Secundaria incompleta",
+                      "Secundaria completa",
+                      "Preparatoria incompleta",
+                      "Preparatoria completa",
+                      "Profesional incompleta",
+                      "Profesional completa",
+                      "Posgrado")) %>% 
+    mutate(ent=stringr::str_sub(folioviv, start=1, end=2 )) %>% 
+    mutate(ing_per=ing_cor/tot_integ) %>% 
+    mutate(recibe_rem=remesas>0)
+  
+```
+
+
+## Hipótesis e intervalos de confianza
+
+### `stats::t.test()`
+Este comando nos sirve para calcular diferentes tipos de test, que tienen como base la distribución t
+
+
+$$H_o: \mu = \mu_0  $$
+$$H_{a1}: \mu ≠ \mu_0  $$
+
+
+```{r echo=FALSE,  warnings=F}
+
+ggnormal <- ggplot(data = data.frame(x = c(-3, 3)), aes(x)) +
+  stat_function(fun = dnorm, n = 1000, args = list(mean = 0, sd = 1)) + ylab("") +
+  scale_y_continuous(breaks = NULL)
+
+funcShaded <- function(x) {
+    y <- dnorm(x, mean = 0, sd = 1)
+    y[x < -1.96 | x > (1.96)] <- NA
+    return(y)
+}
+
+ggnormal+ stat_function(fun=funcShaded, geom="area", fill="#84CA72", alpha=0.2) +  xlab("Intervalo 95%") +
+  geom_vline(aes(xintercept=c(-1.96,1.96)), color="gray") + theme_minimal()
+
+ggC6_2<-ggnormal+ stat_function(fun=funcShaded, geom="area", fill="#84CA72", alpha=0.2)  +
+  geom_vline(aes(xintercept=c(-1.96,1.96))) + theme_minimal()
+```
+$$H_{a2}: \mu > \mu_0  $$
+$$H_{a3}: \mu < \mu_0  $$
+
+
+
+**Univariado para estimación**
+
+```{r}
+t.test(concentrado2022$ing_per)
+```
+
+**Univariado para hipótesis específica**
+
+```{r}
+t.test(concentrado2022$ing_per, mu=4105.11*3)
+t.test(concentrado2022$ing_per, mu=4105.11*3, alternative = "two.sided") #default y de dos colas
+t.test(concentrado2022$ing_per, mu=4105.11*3, alternative = "less") ## cola izquierda
+t.test(concentrado2022$ing_per, mu=4105.11*3, alternative = "greater") #cola derecha 
+
+```
+
+### Enchulando un poquito
+
+Los resultados tienen la info, pero la podemos almacenar en un objeto. Con los cálculos de modelos es muy útil guardarlos para compararlos.
+
+```{r}
+t.test0<-t.test(concentrado2022$ing_per, mu=4105.11*3, alternative = "less")
+```
+
+Veamos si lo imprimimos
+```{r}
+t.test0
+```
+
+```{r}
+broom::tidy(t.test0)
+```
+La función `broom::tidy()` hace que el resultado se vuelva un "tibble", una tabla muy compatible con el tidyverse. Esto puede ser útil cuando queremos ir comparando estimaciones o exportarlas a Excel.
+
+Anteriormente vimos con `{stats}` cómo hacer inferencia. El paquete `{infer}` tiene también elementos para inferencia, pero en formato más compatible con tidyverse.
+
+```{r}
+concentrado2022 %>% 
+  filter(tam_loc==1) %>% # para quedarnos solo con lo urbano
+  infer::t_test( response = ing_per, mu = 4105.11*3)
+
+```
+
+Como vemos nos da el mismo resultado anterior, pero nos da directamente el resultado en formato tidy.
+
+### Proporciones 
+
+Para una proporción en realidad el comando de base es muy sencillo, puesto que necesita 
+```{r}
+table(concentrado2022$sexo_jefe)
+
+prop.test(table(concentrado2022$sexo_jefe))
+```
+
+
+Ojo, R no utiliza el estadístico Z para las proporciones. ¿Qué usará?
+
+
+## Estimaciones bivariadas
+
+### Diferencias de medias por grupos
+
+¿Podemos decir, con significancia estadística que los valores medios de una variable son diferentes entre los grupos?
+
+```{r}
+concentrado2022 %>% 
+  summarise(avg_hrs = mean(ing_per, na.rm=T), .by = sexo_jefe)
+
+concentrado2022 %>% 
+  with(t.test(ing_per~sexo_jefe))
+```
+
+Con `{infer}` sería:
+
+```{r}
+concentrado2022 %>% 
+  mutate(sexo_jefe=as_label(sexo_jefe)) %>% 
+  infer::t_test(ing_per ~ sexo_jefe, 
+                order = c("Hombre", "Mujer") )
+```
+
+
+### Prueba Wilcoxon Rank 
+
+
+```{r}
+concentrado2022 %>% 
+  with(
+  stats::wilcox.test(ing_per ~ sexo_jefe)
+  )
+```
+
+## Estimación de varianzas y sus pruebas de hipótesis
+
+Para poder hacer inferencia sobre la varianza utilizamos el comando `VarTest()` del paquete `{DescTools}`
+
+[Por alguna razón no funciona]
+
+```{r, eval=FALSE}
+concentrado2022 %>% 
+  with(
+    DescTools::VarTest(ing_cor)
+  )
+
+```
+
+Podemos también decir algo sobre el valor objetivo de nuestra hipótesis
+```{r, eval=FALSE}
+concentrado2022 %>% 
+      with(
+        DescTools::VarTest(ing_per, 
+                sigma.squared = 10000)
+        )
+
+```
+
+Guardar como objeto nuestros resultados, siempres muy conveniente para pedir después o para realizar operaciones con ellos
+```{r, eval=FALSE}
+test2<-concentrado2022 %>% 
+    filter(recibe_rem==1) %>% 
+      with(VarTest(ing_per))
+test2$conf.int
+sqrt(test2$conf.int) ### sacamos la raíz cuadrada para tener las
+#desviaciones estándar y sea más fácil de interpretar
+```
+
+Con _tidy_ de "broom"
+
+```{r, eval=FALSE}
+tidy(test2)
+```
+
+
+## Estimación de diferencias de varianzas y sus pruebas de hipótesis
+
+Para comparar varianza, usamos su "ratio", esto nos da un estadístico de prueba F, para comparar dos muestras de poblaciones normales.
+
+
+Si lo que queremos es comparar la varianza entre dos grupos, usamos el signo ~
+```{r}
+concentrado2022 %>% 
+      with(var.test(ing_per ~ as_label(sexo_jefe), 
+                    ratio=1))
+```
+
+## Prueba chi-cuadrado chi-sq. Una aplicación más común
+
+Cuando tenemos dos variables cualitativas o nominales podemos hacer esta la prueba chi-cuadrado, o prueba de independencia. Esta tiene una lógica un poco diferente a las pruebas que hacemos, porque proviene de comparar la distribución de los datos dado que no hay independencia entre las variables y los datos que tenemos.
+
+La hipótesis nula postula una distribución de probabilidad totalmente especificada como el modelo matemático de la población que ha generado la muestra, por lo que si la rechazamos hemos encontrado evidencia estadística sobre la dependencia de las dos variables.
+
+```{r}
+table(concentrado2022$recibe_rem, concentrado2022$sexo_jefe)
+chisq.test(concentrado2022$recibe_rem, concentrado2022$sexo_jefe)
+
+```
+
+Con `{janitor}`
+
+```{r}
+concentrado2022 %>% 
+  mutate_at(vars(recibe_rem, sexo_jefe), ~ as_label(.x)) %>% 
+  janitor::tabyl(recibe_rem, sexo_jefe) %>% 
+  janitor::chisq.test() #ojo
+```
+
+
+## Análisis de varianza
+
+Análisis de varianza. Haremos la versión  más simple. Para ver el efecto de un factor sobre una variable cualitativa (*oneway*).
+
+Revisaremos si la región de residencia de los hogares tiene un efecto en la distribución de los ingresos por. 
+
+### Primero un gráfico
+
+la ANOVA se basa en que nuestra variable es normal. Quitaremos los outliers
+
+```{r}
+concentrado2022 %>% 
+  ggplot() +
+  aes(x=log(ing_per), fill=as_factor(tam_loc), 
+      color=as_factor(tam_loc),
+      alpha=I(0.5)) +
+  geom_density()
+```
+
+La prueba ANOVA o análisis de varianza, nos dice cuánto de nuestra variable se ve explicado por un factor.
+
+En los modelos es mul útil guardar nuestros resultados como un objeto
+```{r}
+anova<-concentrado2022 %>% 
+  with(aov(ing_per ~ as_factor(tam_loc)))
+
+summary(anova)
+```
+
+Con `{broom}`
+
+```{r}
+broom::tidy(anova)
+```
+
+
+#### Comparación entre grupos
+¿si es significativo cuáles diferencias entre los grupos lo son?
+
+```{r}
+TukeyHSD(anova)
+```
+
+
+### Supuestos de ANOVA
+
+* Las observaciones se obtienen de forma independiente y aleatoria de la población definida por los niveles del factor
+* Los datos de cada nivel de factor se distribuyen normalmente.
+* Estas poblaciones normales tienen una varianza común. 
+
+```{r}
+#Prueba Bartlett para ver si las varianzas son iguales
+
+concentrado2022 %>% 
+  with(
+    bartlett.test(ing_per ~ as_factor(tam_loc))
+    )
+
+```
+La prueba tiene una Ho "Las varianzas son iguales"
+
+```{r}
+#Test Normalidad 
+concentrado2022 %>% 
+  #filter(tam_loc==1) %>% 
+  with(
+    ks.test(x=ing_per, 
+            y=pnorm)
+    )
+
+```
+La prueba tiene una Ho "La variable es normal"
+
+
+**¿Qué hacer?**
+
+### Prueba no paramétrica Kruskal-Wallis
+
+Hay una prueba muy parecida que se basa en el orden de las observaciones, y se lee muy parecida a la ANOVA
+```{r}
+kruskal<-concentrado2022 %>% 
+  with(kruskal.test(ing_per ~ as_factor(tam_loc)))
+
+kruskal
+```
+
+Para ver las comparaciones tenemos que usar el `DunnTest()`, del paquete `{DescTools}`
+```{r}
+
+concentrado2022 %>% 
+  with(DescTools::DunnTest(ing_per ~ as_factor(tam_loc)))
+
+```
+
+
+#### Un gráfiquito accesorio:
+
+```{r}
+
+concentrado2022 %>% 
+mutate(ing_per = ing_per/1000) %>% 
+ggpubr::ggviolin(x = "tam_loc", y = "ing_per", fill = "tam_loc",
+         add = "boxplot", add.params = list(fill = "white"))+
+         stat_compare_means(label.y = 3500)  # Add the p-value 
+```
+
+```{r}
+comparaciones <- list( c("1", "2"), 
+                       c("1", "3"),
+                       c("1", "4"),
+                       c("2", "3"), 
+                       c("2", "4"))
+
+```
+
+
+
+Un gráfiquito accesorio 2:
+```{r}
+concentrado2022 %>% 
+mutate(ing_per = ing_per/1000) %>% 
+ggpubr::ggviolin(x = "tam_loc", y = "ing_per", fill = "tam_loc",
+         palette = wesanderson::wes_palette("Royal2", n=4),
+         add = "boxplot", add.params = list(fill = "white"))+
+  stat_compare_means(comparisons = comparaciones, label = "p.signif")+ # Add significance levels
+  stat_compare_means(label.y = 4000)     # Add global the p-value 
+
+```
+
+
+## Ejercicio
+
+Este es un ejercicio más libre y para que revisen más la base de datos de su elección y en términos de su trabajo de tesis. 
+
+Presente **dos** pruebas de hipótesis revisadas en esta práctica con otras variables de su elección. 
+
+!Revise la ayuda de las pruebas para mejor interpretación de sus resultados.
