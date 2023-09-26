@@ -1,0 +1,374 @@
+---
+title: "Sesión 8"
+---
+
+# Regresión lineal (I)
+
+## Paquetes 
+
+Vamos a utilizad "pacman" para cargar los paquetes que utilizaremos en esta sesión
+
+```{r, warning=FALSE}
+#install.packages("sjPlot", dependencies=T) # solito porque da problmas
+library(sjPlot)
+
+if (!require("pacman")) install.packages("pacman") # instala pacman si se requiere
+pacman::p_load(tidyverse, # sobretodo para dplyr
+              haven, #importación
+              janitor, #tablas
+              sjlabelled, # etiquetas
+              DescTools, # Paquete para estimaciones y pruebas
+              infer, # tidy way 
+              broom,  # Una escobita para limpiar (pero es para arreglar)
+              estimatr, car, stargazer, ggpubr, 
+              performance,
+              jtools, lm.beta, robustbase, sandwich,
+              officer,flextable,huxtable, ggstance, kableExtra) # Para la regresión
+
+
+```
+
+
+## Datos
+
+E importamos la base e incluimos los cambios anteriores
+
+```{r}
+etiqueta_sex<-c("Hombre", "Mujer")
+
+concentrado2022 <- haven::read_dta("datos/concentrado2022.dta")  %>% 
+  mutate(sexo_jefe=as.numeric(sexo_jefe)) %>% ## para quitar el "string"
+  sjlabelled::set_labels(sexo_jefe, labels=etiqueta_sex) %>% 
+  mutate(clase_hog=as.numeric(clase_hog)) %>% ## para quitar el "string"
+  sjlabelled::set_labels(clase_hog, labels=c("unipersonal",
+                                             "nuclear", 
+                                             "ampliado",
+                                             "compuesto",
+                                             "corresidente")) %>% 
+  mutate(educa_jefe=as.numeric(educa_jefe)) %>% 
+  set_labels(educa_jefe,
+             labels=c("Sin instrucción", 
+                      "Preescolar",
+                      "Primaria incompleta",
+                      "Primaria completa",
+                      "Secundaria incompleta",
+                      "Secundaria completa",
+                      "Preparatoria incompleta",
+                      "Preparatoria completa",
+                      "Profesional incompleta",
+                      "Profesional completa",
+                      "Posgrado")) %>% 
+    mutate(ent=stringr::str_sub(folioviv, start=1, end=2 )) %>% 
+    mutate(ing_per=ing_cor/tot_integ) %>% 
+    mutate(recibe_rem=remesas>0)
+  
+```
+
+
+## Sub-setting para comparar modelos
+
+Vamos a hacer una sub-base de nuestras posibles variables explicativas. Esto es importante porque sólo podemos comparar modelos con la misma cantidad de observaciones.
+
+
+```{r}
+mydata<- concentrado2022 %>% 
+  select(folioviv, foliohog, tam_loc, ing_per, sexo_jefe, 
+         educa_jefe, edad_jefe, tot_integ, clase_hog) %>%  
+  mutate_at(vars(educa_jefe, sexo_jefe, clase_hog), ~ as_label(.x))
+tail(mydata)
+
+```
+
+
+```{r}
+mydata %>% 
+  ggplot()+ 
+  aes(x=edad_jefe, 
+      y=log(ing_per),
+      alpha=I(0.2)) +
+  geom_jitter() +
+  geom_smooth(method=lm)
+
+
+mydata$log_ing_per<-log(mydata$ing_per)
+mydata<- mydata %>% filter(!is.infinite(log_ing_per))
+
+
+cor(mydata$log_ing_per, mydata$edad_jefe,  use = "pairwise")
+
+```
+
+Una prueba de hipotésis sobe la correlación
+
+```{r}
+
+
+cor_test<-mydata %>% 
+  with(
+    stats::cor.test(log_ing_per, edad_jefe)
+  )
+
+
+#dos modos de visualizar el resultado
+cor_test 
+
+broom::tidy(cor_test)
+
+```
+
+Ojo:Un resultado significativo de una relación débil.
+
+# Regresión lineal 
+
+## Repaso Regresión lineal simple
+
+
+$$y=\beta_o+\beta_1x +\epsilon$$
+
+Donde los parámetros $\beta_o$ y $\beta_1$ describen la pendiente y el intercepto de la población, respectivamente.
+
+
+La regresión lineal nos ayuda a describir una relación a través de una línea recta.
+
+```{r}
+hist(log(mydata$ing_per))
+```
+
+Corremos el modelo
+
+```{r}
+
+modelo <-stats::lm(log_ing_per ~ edad_jefe, 
+                   data=mydata, 
+            na.action=na.exclude)
+
+summary(modelo) # resultados
+```
+
+Con `broom::tidy()`
+
+```{r}
+broom::tidy(modelo) # Pruebas de hipótesis de los coeficientes
+```
+
+Para obtener los intervalos de confianza, podemos hacerlo a partir del siguiente comando:
+
+```{r}
+confint(modelo)
+```
+
+
+Para el ajuste global del modelo, podemos utilzar el comando "broom::glance()" sobre el objeto de nuestro modelo, ello nos dará la información correspondiente:
+```{r}
+broom::glance(modelo) # resultado ajuste global
+
+```
+Otra manera de ver este ajuste es con el comando `anova()`:
+```{r}
+anova(modelo)
+```
+
+## Diagnósticos
+
+```{r}
+plot(modelo)
+
+```
+
+
+
+
+## Outliers y Normalidad
+```{r}
+
+car::outlierTest(modelo) # Bonferonni p-value for most extreme obs
+
+out<-car::outlierTest(modelo) # guardamos en objeto
+```
+
+
+```{r}
+qqPlot<-car::qqPlot(modelo)
+qqPlot
+ggpubr::ggqqplot(mydata$log_ing_per)
+```
+
+
+```{r}
+car::qqPlot(modelo, main="QQ Plot") #qq plot for studentized resid
+```
+
+## Homocedasticidad
+
+```{r}
+
+car::ncvTest(modelo)
+
+# plot studentized residuals vs. fitted values 
+car::spreadLevelPlot(modelo)
+```
+
+
+¿Qué hacemos con los outliers?
+
+Volvemos a correr nuestro modelo, hoy con una base que nos quite estas observaciones.
+
+Como es nuestro modelo original, le pondremos cero
+
+```{r}
+names(out$bonf.p)
+
+outliers<-as.integer(rbind(names(out$bonf.p), qqPlot)) # lista los casos 
+```
+
+Vamos a eliminar estos casos que son extremos (¡Ojo! esto tiene implicaciones de interpretación y debe ser justificado metodológicamente y ser señalado como una limitante)
+
+Tenemos el nombre de las filas que nos dan problemas
+```{r}
+mydata$rownames<-rownames(mydata)
+#View(mydata) # verificamos que no hayamos movido el orden
+
+mydata2<- mydata %>% 
+  filter(rownames%in%outliers)
+
+```
+
+Corremos un nuevo modelo
+
+```{r}
+
+modelo0<-stats::lm(log_ing_per ~edad_jefe, data=mydata2, na.action=na.exclude)
+summary(modelo0)
+
+```
+
+
+¿Cuando parar?
+```{r}
+qqPlot(modelo0)
+outlierTest(modelo0)
+
+```
+
+¡Este puede ser un proceso infinito! Si quitamos lo anormal, esto mueve nuestros rangos y al quitar un outlier, otra variable que antes no era outlier en el ajuste se puede convertir en outlier.
+
+
+
+# Regresión Lineal múltiple
+
+## Agregando una variable categórica
+
+Sexo divide a nuestra población en dos grupos
+```{r}
+mydata %>% 
+  ggplot()+ 
+  aes(edad_jefe,
+      log_ing_per,
+      color = as_label(sexo_jefe)) +
+  geom_jitter(aes(alpha = I(0.05))) +
+  geom_smooth(method=lm, color="gray")+
+  facet_wrap(vars(as_label(sexo_jefe)))
+```
+
+
+Cuando nosotros tenemos una variable categórica para la condición de sexo. 
+
+
+$$y=\beta_o+\beta_1x + \delta_2x+ \epsilon$$
+
+
+```{r}
+modelo1<-stats::lm(log_ing_per ~edad_jefe + sexo_jefe, data=mydata, na.action=na.exclude)
+summary(modelo1)
+```
+
+```{r}
+ 
+mydata$sexo_jefe<-relevel(mydata$sexo_jefe, ref = "Mujer")
+modelo1_bis<-stats::lm(log_ing_per ~edad_jefe + sexo_jefe, data=mydata, na.action=na.exclude)
+summary(modelo1_bis)
+mydata$sexo_jefe<-relevel(mydata$sexo_jefe, ref = "Hombre") # vuelvo
+
+```
+
+
+Este modelo tiene coeficientes que deben leerse "condicionados". Es decir, en este caso tenemos que el coeficiente asociado a la edad, mantiene constante el valor de sexo y viceversa. 
+
+¿Cómo saber is ha mejorado nuestro modelo? Podemos comparar el ajuste con la anova, es decir, una prueba F
+
+```{r}
+
+pruebaf0<-anova(modelo, modelo1)
+
+pruebaf0
+```
+
+
+Como puedes ver, el resultado muestra "DF" (grados de libertad en español) de 1 (lo que indica que el modelo más complejo tiene un parámetro adicional) y un valor p muy pequeño (<.001). Esto significa que agregar el sexo al modelo lleva a un ajuste significativamente mejor sobre el modelo original.
+
+Podemos seguir añadiendo variables sólo "sumando" en la función
+
+
+$$y=\beta_o+\beta_1x + \delta_2x + \beta_3x + \epsilon$$
+
+
+
+```{r}
+modelo2<-stats::lm(log_ing_per ~ edad_jefe + sexo_jefe + tot_integ , 
+            data=mydata, 
+            na.action=na.exclude)
+summary(modelo2)
+```
+
+
+Y podemos ver si introducir esta variable afectó al ajuste global del modelo
+```{r}
+pruebaf1<-anova(modelo1, modelo2)
+pruebaf1
+```
+
+Hoy que tenemos más variables podemos hablar de revisar dos supuestos más.
+
+## Otros supuestos
+
+Además de los supuestos de la regresión simple, podemos revisar estos otros. De nuevo, usaremos el paquete `{car}`
+
+1. Linealidad en los parámetros (será más díficil entre más variables tengamos)
+
+2. La normalidad también, porque debe ser multivariada
+
+3. Multicolinealidad
+La prueba más común es la de Factor Influyente de la Varianza (VIF) por sus siglas en inglés. La lógica es que la multicolinealidad tendrá efectos en nuestro R2, inflándolo. De ahí que observamos de qué variable(s) proviene este problema relacionado con la multicolinealidad.
+
+Si el valor es mayor a 5, tenemos un problema muy grave.
+
+```{r}
+car::vif(modelo2)
+```
+
+Donde
+$$VIF = \frac{1}{1-{R_j}^2}$$
+
+## Paquete `{performance}`
+
+### Supuesto
+
+```{r}
+performance::check_outliers(modelo2)
+performance::check_normality(modelo2)
+performance::check_heteroskedasticity(modelo2)
+performance::check_collinearity(modelo2)
+
+```
+La tolerancia es inverso multiplicativo de VIF, es decir $1-{R_j}^2 $
+### Visualización 
+
+Esto se puede tarda un rato
+```{r}
+performance::check_model(modelo2, se=F)
+```
+
+## Ejercicio
+
+Corre un modelo con al menos dos variables con tu base de datos. Si en tu tema la variable dependiente no numérica, puedes correr un modelo de los gastos e incluir las variables clase_hog y educa_jefe 
+
