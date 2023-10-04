@@ -4,7 +4,7 @@ title: "Sesión 8"
 
 # Regresión lineal (I)
 
-## Paquetes 
+## Paquetes
 
 Vamos a utilizad "pacman" para cargar los paquetes que utilizaremos en esta sesión
 
@@ -27,7 +27,6 @@ pacman::p_load(tidyverse, # sobretodo para dplyr
 
 
 ```
-
 
 ## Datos
 
@@ -64,11 +63,9 @@ concentrado2022 <- haven::read_dta("datos/concentrado2022.dta")  %>%
   
 ```
 
-
 ## Sub-setting para comparar modelos
 
 Vamos a hacer una sub-base de nuestras posibles variables explicativas. Esto es importante porque sólo podemos comparar modelos con la misma cantidad de observaciones.
-
 
 ```{r}
 mydata<- concentrado2022 %>% 
@@ -78,7 +75,6 @@ mydata<- concentrado2022 %>%
 tail(mydata)
 
 ```
-
 
 ```{r}
 mydata %>% 
@@ -118,15 +114,13 @@ broom::tidy(cor_test)
 
 Ojo:Un resultado significativo de una relación débil.
 
-# Regresión lineal 
+# Regresión lineal
 
 ## Repaso Regresión lineal simple
-
 
 $$y=\beta_o+\beta_1x +\epsilon$$
 
 Donde los parámetros $\beta_o$ y $\beta_1$ describen la pendiente y el intercepto de la población, respectivamente.
-
 
 La regresión lineal nos ayuda a describir una relación a través de una línea recta.
 
@@ -157,13 +151,15 @@ Para obtener los intervalos de confianza, podemos hacerlo a partir del siguiente
 confint(modelo)
 ```
 
-
 Para el ajuste global del modelo, podemos utilzar el comando "broom::glance()" sobre el objeto de nuestro modelo, ello nos dará la información correspondiente:
+
 ```{r}
 broom::glance(modelo) # resultado ajuste global
 
 ```
+
 Otra manera de ver este ajuste es con el comando `anova()`:
+
 ```{r}
 anova(modelo)
 ```
@@ -175,10 +171,8 @@ plot(modelo)
 
 ```
 
-
-
-
 ## Outliers y Normalidad
+
 ```{r}
 
 car::outlierTest(modelo) # Bonferonni p-value for most extreme obs
@@ -186,13 +180,11 @@ car::outlierTest(modelo) # Bonferonni p-value for most extreme obs
 out<-car::outlierTest(modelo) # guardamos en objeto
 ```
 
-
 ```{r}
 qqPlot<-car::qqPlot(modelo)
 qqPlot
 ggpubr::ggqqplot(mydata$log_ing_per)
 ```
-
 
 ```{r}
 car::qqPlot(modelo, main="QQ Plot") #qq plot for studentized resid
@@ -207,7 +199,6 @@ car::ncvTest(modelo)
 # plot studentized residuals vs. fitted values 
 car::spreadLevelPlot(modelo)
 ```
-
 
 ¿Qué hacemos con los outliers?
 
@@ -224,6 +215,7 @@ outliers<-as.integer(rbind(names(out$bonf.p), qqPlot)) # lista los casos
 Vamos a eliminar estos casos que son extremos (¡Ojo! esto tiene implicaciones de interpretación y debe ser justificado metodológicamente y ser señalado como una limitante)
 
 Tenemos el nombre de las filas que nos dan problemas
+
 ```{r}
 mydata$rownames<-rownames(mydata)
 #View(mydata) # verificamos que no hayamos movido el orden
@@ -242,8 +234,8 @@ summary(modelo0)
 
 ```
 
-
 ¿Cuando parar?
+
 ```{r}
 qqPlot(modelo0)
 outlierTest(modelo0)
@@ -252,13 +244,12 @@ outlierTest(modelo0)
 
 ¡Este puede ser un proceso infinito! Si quitamos lo anormal, esto mueve nuestros rangos y al quitar un outlier, otra variable que antes no era outlier en el ajuste se puede convertir en outlier.
 
-
-
 # Regresión Lineal múltiple
 
 ## Agregando una variable categórica
 
 Sexo divide a nuestra población en dos grupos
+
 ```{r}
 mydata %>% 
   ggplot()+ 
@@ -270,12 +261,9 @@ mydata %>%
   facet_wrap(vars(as_label(sexo_jefe)))
 ```
 
-
-Cuando nosotros tenemos una variable categórica para la condición de sexo. 
-
+Cuando nosotros tenemos una variable categórica para la condición de sexo.
 
 $$y=\beta_o+\beta_1x + \delta_2x+ \epsilon$$
-
 
 ```{r}
 modelo1<-stats::lm(log_ing_per ~edad_jefe + sexo_jefe, data=mydata, na.action=na.exclude)
@@ -291,8 +279,7 @@ mydata$sexo_jefe<-relevel(mydata$sexo_jefe, ref = "Hombre") # vuelvo
 
 ```
 
-
-Este modelo tiene coeficientes que deben leerse "condicionados". Es decir, en este caso tenemos que el coeficiente asociado a la edad, mantiene constante el valor de sexo y viceversa. 
+Este modelo tiene coeficientes que deben leerse "condicionados". Es decir, en este caso tenemos que el coeficiente asociado a la edad, mantiene constante el valor de sexo y viceversa.
 
 ¿Cómo saber is ha mejorado nuestro modelo? Podemos comparar el ajuste con la anova, es decir, una prueba F
 
@@ -303,15 +290,11 @@ pruebaf0<-anova(modelo, modelo1)
 pruebaf0
 ```
 
-
-Como puedes ver, el resultado muestra "DF" (grados de libertad en español) de 1 (lo que indica que el modelo más complejo tiene un parámetro adicional) y un valor p muy pequeño (<.001). Esto significa que agregar el sexo al modelo lleva a un ajuste significativamente mejor sobre el modelo original.
+Como puedes ver, el resultado muestra "DF" (grados de libertad en español) de 1 (lo que indica que el modelo más complejo tiene un parámetro adicional) y un valor p muy pequeño (\<.001). Esto significa que agregar el sexo al modelo lleva a un ajuste significativamente mejor sobre el modelo original.
 
 Podemos seguir añadiendo variables sólo "sumando" en la función
 
-
 $$y=\beta_o+\beta_1x + \delta_2x + \beta_3x + \epsilon$$
-
-
 
 ```{r}
 modelo2<-stats::lm(log_ing_per ~ edad_jefe + sexo_jefe + tot_integ , 
@@ -320,8 +303,8 @@ modelo2<-stats::lm(log_ing_per ~ edad_jefe + sexo_jefe + tot_integ ,
 summary(modelo2)
 ```
 
-
 Y podemos ver si introducir esta variable afectó al ajuste global del modelo
+
 ```{r}
 pruebaf1<-anova(modelo1, modelo2)
 pruebaf1
@@ -333,12 +316,11 @@ Hoy que tenemos más variables podemos hablar de revisar dos supuestos más.
 
 Además de los supuestos de la regresión simple, podemos revisar estos otros. De nuevo, usaremos el paquete `{car}`
 
-1. Linealidad en los parámetros (será más díficil entre más variables tengamos)
+1.  Linealidad en los parámetros (será más díficil entre más variables tengamos)
 
-2. La normalidad también, porque debe ser multivariada
+2.  La normalidad también, porque debe ser multivariada
 
-3. Multicolinealidad
-La prueba más común es la de Factor Influyente de la Varianza (VIF) por sus siglas en inglés. La lógica es que la multicolinealidad tendrá efectos en nuestro R2, inflándolo. De ahí que observamos de qué variable(s) proviene este problema relacionado con la multicolinealidad.
+3.  Multicolinealidad La prueba más común es la de Factor Influyente de la Varianza ($VIF$) por sus siglas en inglés. La lógica es que la multicolinealidad tendrá efectos en nuestro $R^2$, inflándolo. De ahí que observamos de qué variable(s) proviene este problema relacionado con la multicolinealidad.
 
 Si el valor es mayor a 5, tenemos un problema muy grave.
 
@@ -346,8 +328,7 @@ Si el valor es mayor a 5, tenemos un problema muy grave.
 car::vif(modelo2)
 ```
 
-Donde
-$$VIF = \frac{1}{1-{R_j}^2}$$
+Donde $$VIF = \frac{1}{1-{R_j}^2}$$
 
 ## Paquete `{performance}`
 
@@ -360,15 +341,15 @@ performance::check_heteroskedasticity(modelo2)
 performance::check_collinearity(modelo2)
 
 ```
-La tolerancia es inverso multiplicativo de VIF, es decir $1-{R_j}^2 $
-### Visualización 
+
+La tolerancia es inverso multiplicativo de VIF, es decir \$1-{R_j}\^2 \$ \### Visualización
 
 Esto se puede tarda un rato
+
 ```{r}
 performance::check_model(modelo2, se=F)
 ```
 
 ## Ejercicio
 
-Corre un modelo con al menos dos variables con tu base de datos. Si en tu tema la variable dependiente no numérica, puedes correr un modelo de los gastos e incluir las variables clase_hog y educa_jefe 
-
+Corre un modelo con al menos dos variables con tu base de datos. Si en tu tema la variable dependiente no numérica, puedes correr un modelo de los gastos e incluir las variables clase_hog y educa_jefe
