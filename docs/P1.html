@@ -239,6 +239,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <a href="./P8.html" class="sidebar-item-text sidebar-link">Sesión 8</a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P9.html" class="sidebar-item-text sidebar-link">Sesión 9</a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -489,8 +494,8 @@ sum&gt; sum(1:5, NA, na.rm = TRUE)
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gc</span>()           <span class="do">## Garbage collection, reporta memoria en uso</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
-Ncells  603800 32.3    1316758 70.4         NA  1316758 70.4
-Vcells 1121677  8.6    8388608 64.0      16384  1851365 14.2</code></pre>
+Ncells  603802 32.3    1316770 70.4         NA  1316770 70.4
+Vcells 1121672  8.6    8388608 64.0      16384  1851349 14.2</code></pre>
 </div>
 </div>
 <p>Para borrar todos nuestros objetos, usamos el siguiente comando, que equivale a usar la escobita de la venta de environment</p>
@@ -506,25 +511,26 @@ Vcells 1121677  8.6    8388608 64.0      16384  1851365 14.2</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">getwd</span>()           <span class="co"># Directorio actual</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "/Users/anaescoto/Library/CloudStorage/Dropbox/2023/R_Demo_2024-1/R_Demo_2024_1"</code></pre>
+<pre><code>[1] "/Users/anaescoto/Dropbox/2023/R_Demo_2024-1/R_Demo_2024_1"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>()      <span class="co"># Lista de archivos en ese directorio</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] "Erick.R"                  "LICENSE"                 
- [3] "Mi_Exportación.xlsx"      "P1.qmd"                  
+ [3] "Mi_Exportación.xlsx"      "P1.qmd"                  
  [5] "P1.rmarkdown"             "P2.qmd"                  
  [7] "P3.qmd"                   "P4.qmd"                  
  [9] "P5.qmd"                   "P6.qmd"                  
 [11] "P7.qmd"                   "P8.html"                 
 [13] "P8.qmd"                   "P8_files"                
-[15] "README.md"                "R_Demo_2024_1.Rproj"     
-[17] "_quarto.yml"              "data_envipe2022.RData"   
-[19] "datos"                    "docs"                    
-[21] "ima"                      "index.html"              
-[23] "index.qmd"                "instala.html"            
-[25] "instala.qmd"              "paquetes.R"              
-[27] "s3fusionado_ppt2023.pdf"  "s3fusionado_ppt2023.pptx"
-[29] "site_libs"               </code></pre>
+[15] "P9.html"                  "P9.qmd"                  
+[17] "P9_files"                 "README.md"               
+[19] "R_Demo_2024_1.Rproj"      "_quarto.yml"             
+[21] "data_envipe2022.RData"    "datos"                   
+[23] "docs"                     "ima"                     
+[25] "index.html"               "index.qmd"               
+[27] "instala.html"             "instala.qmd"             
+[29] "paquetes.R"               "s3fusionado_ppt2023.pdf" 
+[31] "s3fusionado_ppt2023.pptx" "site_libs"               </code></pre>
 </div>
 </div>
 <p>Checar que esto también se puede hacer desde el menú:</p>
