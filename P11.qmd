@@ -1,0 +1,502 @@
+---
+title: "Sesión 11"
+---
+
+# Aplicaciones relacionadas a la demografía (I)
+
+## Paquetes
+
+```{r}
+# install.packages("remotes")
+# install.packages("devtools")
+
+# options(timeout = 600)
+# devtools::install_github("PPgp/wpp2022")
+# library(wpp2022)
+
+if (!require("pacman")) install.packages("pacman")#instala pacman si se requiere
+
+pacman::p_load(tidyverse, readxl, magrittr, # paquetes de uso
+               haven, readxl, #importación
+               janitor, 
+               sjlabelled,
+               wppExplorer, wpp2022,
+               WDI, geodata, 
+               inegiR, apyramid,
+               fmsb, ggthemes)
+```
+
+## Datos
+
+### Proyecciones CONAPO
+
+Vamos a trabajar con las proyecciones de CONAPO. Estos están en el dropbox de datos, o bien los puedes decargar directamente de [CONAPO](https://datos.gob.mx/busca/dataset/proyecciones-de-la-poblacion-de-mexico-y-de-las-entidades-federativas-2020-2070)
+
+```{r}
+# pob_mit_proyecciones <-read.csv("https://conapo.segob.gob.mx/work/models/CONAPO/Datos_Abiertos/pry23/00_Pob_Mitad_1950_2070.csv") %>% clean_names()
+
+pob_mit_proyecciones <-read.csv("datos/00_Pob_Mitad_1950_2070.csv") %>% clean_names()
+
+```
+
+### Proyecciones WPP
+
+Vamos a usar el paqute `{wpp2022}`
+
+Revisemos la viñeta del paquete que está [aquí](https://github.com/PPgp/wpp2022)
+
+Todas los *data.frames* están en el paquete y si lo tenemos cargados podemos consultarlo con el comando data()
+
+```{r}
+data("popAge5dt") 
+
+```
+
+Aquí están todos los países, revisemos un poco
+
+```{r}
+
+popAge5dt %>% 
+  select(country_code, name) %>% 
+  unique()
+
+
+```
+
+Podemos hacer búsquedas:
+
+```{r}
+
+popAge5dt %>% 
+  mutate(mx=stringr::str_match(name, "Mexico")) %>% 
+  filter(!is.na(mx)) %>%
+  select(country_code, name) 
+ 
+
+```
+
+Vamos a hacer el ejercicio con México pero pueden buscar cualquier otro país y la región
+
+```{r}
+ 
+# Países: 
+# sv: 222 
+# gt: 320
+# hn: 340
+# mx: 484
+# CA: 916
+# LAC: 1830
+
+popAge5dt %<>% 
+  filter(country_code%in%c(484,1830))
+
+popAge1dt %<>% 
+  filter(country_code%in%c(484,1830))
+```
+
+### Población desagregada
+
+```{r}
+poblacion2022 <- haven::read_dta("datos/poblacion2022.dta")
+```
+
+## Pirámides con datos agregados
+
+Revisemos esta base de datos de las proyecciones de población.
+
+```{r}
+skimr::skim(pob_mit_proyecciones)
+```
+
+La edad y sexo son de las variables más importantes en la demografía para explicar la estructura de una población.
+
+Las pirámides son parte esencial de lo que llamamos *Demografía estática*, nos cuentan un siglo de historia de las poblaciones
+
+```{r}
+pob_mit_proyecciones %>% 
+  filter(cve_geo==0) %>% # República Mexicana
+  filter(ano==2022) %>%  # El año
+  count(edad, sexo, wt=poblacion) # ojo 
+  
+```
+
+Podemos pensar en las pirámides como un doble histograma
+
+```{r}
+pob_mit_proyecciones %>% 
+  filter(cve_geo==0) %>% 
+  filter(ano==2022) %>% 
+  ggplot() +
+  aes(edad, weight=poblacion) + 
+  geom_histogram(binwidth = 5) # porque son grupos quinquenales
+```
+
+Tendríamos que darle la vuelta para verle más el parecido
+
+```{r}
+pob_mit_proyecciones %>% 
+  filter(cve_geo==0) %>% 
+  filter(ano==2020) %>% 
+  ggplot() +
+  aes(edad, weight=poblacion) +
+  geom_histogram(binwidth = 5)  + # verificar el ancho de clase
+  coord_flip()
+```
+
+### Con grupos quinquenales
+
+Si queremos hacerlo como gráficos de barra, seguramente queremos cortar la variable de edad. Igual este paso es esencial en la vida demográfica:
+
+```{r}
+
+pob_mit_proyecciones %<>% 
+  mutate(eda5=cut(edad, # la variable a cortar
+                  breaks=seq(0,110, # El rango válido
+                             by=5), # El ancho del intervalo
+                  include.lowest=T, # para que incluya el valor más bajo dentro del intervalo
+                  right=F)) # indica si el intervalo irá abierto en la derecha, ponemos un no con "FALSE"
+
+```
+
+Veamos esta variable:
+
+```{r}
+pob_mit_proyecciones %>% count(eda5, wt=poblacion)
+```
+
+```{r}
+
+### gráfico de barras de edades quinquenales
+pob_mit_proyecciones %>%   
+  filter(cve_geo==0) %>% 
+  filter(ano==2022) %>% 
+  ggplot() +
+  aes(x=eda5, weights=poblacion) +
+  geom_bar() # dibuja la geometría de barra
+
+```
+
+## La primera pirámide
+
+Una pirámide es un doble histograma por **sexo**, donde el valor de los hombres es negativo:
+
+```{r}
+pob_mit_proyecciones %>% 
+  filter(cve_geo==0) %>% 
+  filter(ano==2022) %>% 
+  mutate(poblacion2=if_else(sexo=="Hombres", -poblacion, poblacion)) %>% 
+  ggplot() +
+  aes(eda5, fill=sexo, weight=poblacion2)+
+  geom_bar() # dibuja la geometría de barra
+
+```
+
+Podemos darle la vuelta y cambiarle los colores
+
+```{r}
+pob_mit_proyecciones %<>% 
+  mutate(poblacion2=if_else(sexo=="Hombres", -poblacion, poblacion))
+
+
+pob_mit_proyecciones %>% 
+  filter(cve_geo==0) %>% 
+  filter(ano==2022) %>%  
+  ggplot(aes(eda5, fill=sexo, weights=poblacion2)) +
+  geom_bar() + coord_flip() +
+  scale_fill_brewer(palette = "Accent") + 
+  theme_light() 
+
+
+```
+
+Como que las escalas tampoco están muy perfectas y no queremos las negativa.¡Los hombres no son personas negativas!
+
+Veamos un poco cómo se comporta esa variable:
+
+```{r}
+pob_mit_proyecciones %>% 
+  filter(cve_geo==0) %>% 
+  filter(ano==2022) %>%  
+  count(eda5, sexo, wt=poblacion2) %>% 
+  summarise(max=max(n), min=min(n))
+
+```
+
+```{r}
+pob_mit_proyecciones %>% 
+  filter(cve_geo==0) %>% 
+  filter(ano==2022) %>%  
+  ggplot(aes(eda5, fill=sexo, weights=poblacion2))+
+    geom_bar() + coord_flip() +
+   scale_y_continuous(breaks = seq(-6000000, 6000000, by=1000000), # cuántos 
+                      limits = c(-6000000,6000000),
+                      labels = paste0(
+                       as.character(c(6:0,# sustituye negativos
+                         1:6) # Para lo positivo 
+                         ) 
+                       ) 
+                      )+ 
+  labs(y="Poblacion - millones", x="Grupos de edad") +
+  scale_fill_brewer(palette = "Accent") + 
+  theme_light() 
+
+
+```
+
+Esto es para el volumen de la población ¿Cómo podemos hacer una pirámide que sea en términos de proporciones?
+
+Vamos a necesitar el total de la población:
+
+```{r}
+pob_mit_proyecciones %<>% 
+  mutate(p_edo=sum(poblacion), .by = c("cve_geo", "ano"))
+
+head(pob_mit_proyecciones)
+```
+
+Hoy sí haremos lo mismo pero para las proporciones:
+
+```{r}
+pob_mit_proyecciones %<>% 
+  mutate(poblacion3=if_else(sexo=="Hombres",
+                            -poblacion/p_edo, 
+                            poblacion/p_edo))
+
+```
+
+Una vez que ya tenemos nuestra variable proporcional:
+
+```{r}
+pob_mit_proyecciones %>% 
+  filter(cve_geo==0) %>% 
+  filter(ano==2022) %>%  
+  ggplot(aes(eda5, fill=sexo, weights=poblacion3))+
+    geom_bar() + coord_flip() +
+   scale_y_continuous(labels = scales::percent_format(accuracy=0.01))+ 
+  labs(y="Poblacion - %", x="Grupos de edad") +
+  scale_fill_brewer(palette = "Accent") + 
+  theme_light() 
+
+
+```
+
+Podemos hacer varias pirámides aplicando facets o grids:
+
+```{r}
+pob_mit_proyecciones %>% 
+  filter(cve_geo==0) %>% 
+  filter(ano%in%seq(2020,2070, by=10)) %>%  
+  ggplot() +
+  aes(eda5, fill=sexo, weights=poblacion3)+
+  geom_bar() + coord_flip() +
+  scale_y_continuous(labels = scales::percent_format(accuracy=0.01)) +
+  labs(y="Poblacion - %", x="Grupos de edad") +
+  scale_fill_brewer(palette = "Accent") + 
+  theme_light() +
+  facet_wrap(~ano)
+
+
+```
+
+## Pirámides con bases de datos no agrupadas
+
+Vamos a hacer un ejemplo de edad simple, y de cómo hacemos cuando los datos no están agrupados. Lo más fácil para volver negativos a los hombres es crear una nueva variable
+
+```{r}
+poblacion2022 %>% 
+  mutate(dummy=if_else(sexo==1,
+                       -1,
+                       1)) %>% 
+  ggplot(aes(edad, 
+             fill=as_factor(sexo), 
+             weights=dummy*factor))+
+    geom_histogram(binwidth = 5) + coord_flip() 
+
+```
+
+## Paquete `{apyramid}`
+
+Necesita que tengamos los datos quinquenales No acepta funciones en las variables edad y sexo
+
+```{r}
+pira <- pob_mit_proyecciones %>% 
+  filter(cve_geo==0) %>% 
+  filter(ano==2022) %>%
+  age_pyramid(eda5, # edad debe ser factor
+              split_by = sexo,
+              count=poblacion) # sexo
+
+pira + theme_minimal()
+
+```
+
+Nos ahorra un par de pasos, pero siempre tenemos que solucionar algunos elemetnos
+
+Veamos como hacemos un loop para hacer varias pirámides, pero antes tenemos que arreglar un poco esa base que bajamos de WPP
+
+```{r}
+popAge5dt  %<>% 
+  mutate(edad=parse_number(age)) %>% 
+  mutate(edad_factor=as.factor(edad))
+
+
+
+popAge5dt %<>% 
+  pivot_longer(cols=popM:pop, 
+               names_to = "sex",
+               values_to = "poblacion") %>% 
+  mutate(sex=str_replace_all(sex,"popF", "Mujeres")) %>% 
+  mutate(sex=str_replace_all(sex,"popM", "Hombres")) %>% 
+  mutate(sex=str_replace_all(sex,"pop", "Total")) 
+
+```
+
+El loop:
+
+```{r}
+anios<-unique(popAge5dt$year)
+pais<-unique(popAge5dt$country_code)
+
+for (i in pais){
+  popAge5dt %>% 
+    mutate(poblacion=poblacion/1000) %>% 
+    filter(country_code==i) %>% 
+    filter(!sex=="Total") %>% 
+    filter(year==2020) %>% 
+    age_pyramid(edad_factor, # edad
+                split_by = sex,
+                count=poblacion)+  
+    labs(x="edad",
+         y="millones de personas", 
+         title = paste0(popAge5dt[popAge5dt$country_code==i,]$name),
+         fill="Sexo")->g
+  
+   ggsave(plot=g, 
+          filename=paste0("pira",i,".png", sep=""),
+          width=9,
+          height=7)
+  
+  g 
+  assign(paste0("pira",i, sep=""), g)
+  
+}
+
+
+```
+
+Para datos desagregados, sin factor expansión
+
+```{r}
+pira_enigh <- poblacion2022 %>% 
+  mutate(eda5=cut(edad, # la variable a cortar
+                  breaks=seq(0,110, # El rango válido
+                             by=5), # El ancho del intervalo
+                  include.lowest=T, # para que incluya el valor más bajo dentro del intervalo
+                  right=F)) %>% 
+  age_pyramid(eda5, # edad debe ser factor
+              split_by = sexo) # sexo
+
+pira_enigh + theme_minimal()
+```
+
+```{r}
+pira_enigh2 <- poblacion2022 %>% 
+  mutate(hablaind=as_numeric(hablaind)) %>% 
+  filter(!is.na(hablaind)) %>% 
+  mutate(eda5=cut(edad, # la variable a cortar
+                  breaks=seq(0,110, # El rango válido
+                             by=5), # El ancho del intervalo
+                  include.lowest=T, # para que incluya el valor más bajo dentro del intervalo
+                  right=F)) %>% 
+  age_pyramid(eda5, # edad debe ser factor
+              split_by = hablaind, 
+              proportional = T) # Otra
+
+pira_enigh2 + theme_minimal()
+```
+
+## Mapas - fáciles
+
+Un paquete en desarrollo
+
+```{r}
+
+#remotes::install_github("diegovalle/mxmaps")
+library(mxmaps)
+
+```
+
+### Lógica del paquete
+
+```{r}
+data("df_mxstate") # carga la base estatal del paquete
+#head(df_mxstate)
+
+```
+
+Un primer mapa:
+
+```{r}
+
+df_mxstate$value<-df_mxstate$pop
+mxstate_choropleth(df_mxstate,
+                   title = "Total población, por Estado") 
+
+```
+
+### Aplicación con otros datos
+
+Lo importante es que tengamos nuestra variable de región y tengamos los 32 datos.
+
+Hacemos nuestra variable de region:
+
+```{r}
+poblacion2022%<>% 
+    mutate(region=stringr::str_sub(folioviv, start=1, end=2 )) 
+```
+
+Por ejemplo, yo haré un mapa de la cantidad de niñas menores 12 a 17 años que declaran tener hijos nacidos vivos. Primero hago variables para identificar a las niñas y luego a las niñas con hijos
+
+```{r}
+poblacion2022 %<>% 
+  mutate(ninia12_17=if_else(sexo==2 & edad>11 & edad<18, 1, 0)) %>% 
+  mutate(ninia_hnv=if_else(ninia12_17==1 & hijos_viv>0, 1, 0)) 
+
+```
+
+Hoy haremos nuestra base estatal
+
+```{r}
+edo2022 <- poblacion2022 %>% 
+  select(region, ninia12_17, ninia_hnv, factor) %>% 
+  mutate(x=1) %>% 
+  filter(ninia12_17==1) %>% 
+  mutate(n_ninia12_17=(x*ninia12_17), 
+        n_ninia_hnv=(x*ninia_hnv),
+        ninia12_17=factor*ninia12_17, 
+        n_ninia_hnv=factor*ninia_hnv) %>% 
+  group_by(region) %>% 
+  collapse::fsum()
+
+```
+
+**Ojo**
+El tamaño de la muestra es muy chiquito, esto es para ejemplos.
+
+
+```{r}
+
+edo2022$value<-edo2022$ninia_hnv/edo2022$ninia12_17
+
+mxstate_choropleth(edo2022,
+                   title = "Proporción de Niñas (12-17) con hnv") 
+
+```
+
+
+
+## Ejercicio
+
+1.  Hacer una pirámide con su base específica. Si no se presta para esto, debe hacerlo con cualquier otra variable.
+
+2.  Darse de alta en IPUMS para poderlo usar en la siguiente sesión.

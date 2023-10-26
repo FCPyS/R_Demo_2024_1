@@ -330,6 +330,7 @@ car::vif(modelo2)
 
 Donde $$VIF = \frac{1}{1-{R_j}^2}$$
 
+
 ## Paquete `{performance}`
 
 ### Supuesto
@@ -342,7 +343,9 @@ performance::check_collinearity(modelo2)
 
 ```
 
-La tolerancia es inverso multiplicativo de VIF, es decir \$1-{R_j}\^2 \$ \### Visualización
+La tolerancia es inverso multiplicativo de VIF, es decir $1-{R_j}^2 $
+
+### Visualización
 
 Esto se puede tarda un rato
 

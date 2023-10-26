@@ -19,9 +19,9 @@ pacman::p_load(tidyverse,
 
 ```
 
-## Vamos a trabajar con el proyecto 
+## Vamos a trabajar con el proyecto
 
-Descarguemos algunos ejemplos de información, [aquí](https://www.dropbox.com/scl/fo/vft7ua44ihxhgr8sdwgn0/h?rlkey=5q1j1ryuexjqet3b0r782y86e&dl=0) un par de ejemplo de algunos formatos. 
+Descarguemos algunos ejemplos de información, [aquí](https://www.dropbox.com/scl/fo/vft7ua44ihxhgr8sdwgn0/h?rlkey=5q1j1ryuexjqet3b0r782y86e&dl=0) un par de ejemplo de algunos formatos.
 
 ## Importación de datos
 
