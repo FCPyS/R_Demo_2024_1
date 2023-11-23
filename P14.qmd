@@ -1,0 +1,496 @@
+---
+title: "Sesión 14"
+---
+
+# Aplicaciones relacionadas a la demografía (III)
+
+## Paquetes
+
+```{r}
+
+#Instalación de {DemoTools}
+# install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+# remotes::install_github("timriffe/DemoTools")
+
+if (!require("pacman")) install.packages("pacman") # instala pacman si se requiere
+pacman::p_load(tidyverse, janitor, magrittr,
+               haven, readxl, # importación de dta y excel
+               sjlabelled, # etiquetas
+               gt, # grammar of table
+               pollster,  # para tabulados
+               lubridate, # para manejo de fechas)
+               fastDummies) #  para crear dummies
+
+```
+
+## Datos
+
+```{r}
+poblacion2022 <- haven::read_dta("datos/poblacion2022.dta")
+```
+
+Y tenemos que tener a la mano nuestro [descriptor de archivos](https://www.inegi.org.mx/contenidos/productos/prod_serv/contenidos/espanol/bvinegi/productos/nueva_estruc/889463910626.pdf) \## Variables básicas
+
+### Años de escolaridad
+
+Se construye junto con nivel, grado y en este caso antecedente. Esta última no siempre está disponible.
+
+![Nivel](ima/anios1.png) ![Año](ima/anios2.png)
+
+![antecedente](ima/anios3.png) ![antecedente2](ima/anios4.png)
+
+Revisemos estas variables
+
+```{r}
+poblacion2022 %>% 
+  tabyl(nivelaprob) %>% 
+  adorn_totals()
+
+poblacion2022 %>% 
+  tabyl(gradoaprob)%>% 
+  adorn_totals()
+
+
+poblacion2022 %>% 
+  tabyl(antec_esc)%>% 
+  adorn_totals()
+```
+
+Esta variable está como cadena, como vamos a hacer operaciones es mejor que estén en formato numérico.
+
+```{r}
+poblacion2022 %<>% 
+  mutate_at(vars(nivelaprob, gradoaprob, antec_esc), ~ readr::parse_number(.x))
+```
+
+La variable se construirá con un `case_when()`
+
+```{r}
+poblacion2022 %>% 
+  mutate(escoacum = case_when(
+    nivelaprob < 2  ~ 0, # ninguna y preescolar no suman
+    nivelaprob == 2 ~ gradoaprob, # en primaria cuentan los grados nomás
+    nivelaprob == 3 ~ 6 + gradoaprob, # secundaria se suma primaria
+    nivelaprob == 4 ~ 9 + gradoaprob, # Bachillerato y prepa
+    nivelaprob > 4 & nivelaprob <8 & antec_esc==1 ~ 6 + gradoaprob, # Normales y técnicos con primaria
+    nivelaprob > 4 & nivelaprob <8  & antec_esc==2 ~ 9 + gradoaprob, # Normales y técnicos con secundaria
+    nivelaprob > 4 & nivelaprob <8  & antec_esc==3 ~ 12 + gradoaprob, # Normales y técnicos con prepa o bachillerato
+    nivelaprob > 4 & nivelaprob <8  & antec_esc==4 ~ 16 + gradoaprob, # Normales y técnicos con licenciatura
+    nivelaprob == 8  & antec_esc== 4 ~ 16 + gradoaprob, # Maestría con licenciatura
+    nivelaprob == 9  & antec_esc== 4 ~ 16 + gradoaprob, # Doctorado con licenciatura
+    nivelaprob == 9  & antec_esc== 5 ~ 18 + gradoaprob # Doctorado con maestría
+      )) %>% 
+  filter(is.na(escoacum)) %>% 
+  tabyl(nivelaprob, antec_esc)%>%  # estos no se sabe qué son. podemos revisar nivel actual
+  adorn_totals()
+
+
+```
+
+Hoy revisamos la distribución
+
+```{r}
+poblacion2022 %>% 
+mutate(escoacum = case_when(
+    nivelaprob < 2  ~ 0, # ninguna y preescolar no suman
+    nivelaprob == 2 ~ gradoaprob, # en primaria cuentan los grados nomás
+    nivelaprob == 3 ~ 6 + gradoaprob, # secundaria se suma primaria
+    nivelaprob == 4 ~ 9 + gradoaprob, # Bachillerato y prepa
+    nivelaprob > 4 & nivelaprob <8 & antec_esc==1 ~ 6 + gradoaprob, # Normales y técnicos con primaria
+    nivelaprob > 4 & nivelaprob <8  & antec_esc==2 ~ 9 + gradoaprob, # Normales y técnicos con secundaria
+    nivelaprob > 4 & nivelaprob <8  & antec_esc==3 ~ 12 + gradoaprob, # Normales y técnicos con prepa o bachillerato
+    nivelaprob > 4 & nivelaprob <8  & antec_esc==4 ~ 16 + gradoaprob, # Normales y técnicos con licenciatura
+    nivelaprob == 8  & antec_esc== 4 ~ 16 + gradoaprob, # Maestría con licenciatura
+    nivelaprob == 9  & antec_esc== 4 ~ 16 + gradoaprob, # Doctorado con licenciatura
+    nivelaprob == 9  & antec_esc== 5 ~ 18 + gradoaprob # Doctorado con maestría
+      )) %>% 
+  tabyl(escoacum)
+```
+
+```{r}
+poblacion2022 %<>% 
+mutate(escoacum = case_when(
+    nivelaprob < 2  ~ 0, # ninguna y preescolar no suman
+    nivelaprob == 2 ~ gradoaprob, # en primaria cuentan los grados nomás
+    nivelaprob == 3 ~ 6 + gradoaprob, # secundaria se suma primaria
+    nivelaprob == 4 ~ 9 + gradoaprob, # Bachillerato y prepa
+    nivelaprob > 4 & nivelaprob <8 & antec_esc==1 ~ 6 + gradoaprob, # Normales y técnicos con primaria
+    nivelaprob > 4 & nivelaprob <8  & antec_esc==2 ~ 9 + gradoaprob, # Normales y técnicos con secundaria
+    nivelaprob > 4 & nivelaprob <8  & antec_esc==3 ~ 12 + gradoaprob, # Normales y técnicos con prepa o bachillerato
+    nivelaprob > 4 & nivelaprob <8  & antec_esc==4 ~ 16 + gradoaprob, # Normales y técnicos con licenciatura
+    nivelaprob == 8  & antec_esc== 4 ~ 16 + gradoaprob, # Maestría con licenciatura
+    nivelaprob == 9  & antec_esc== 4 ~ 16 + gradoaprob, # Doctorado con licenciatura
+    nivelaprob == 9  & antec_esc== 5 ~ 18 + gradoaprob # Doctorado con maestría
+      ))
+```
+
+Hoy tenemos nuestra variable
+
+```{r}
+poblacion2022 %>% 
+  filter(edad>3) %>% 
+  with(
+    hist(escoacum)
+  )
+```
+
+Aquí dejo el código en STATA para la ENADID 2018, que no tiene antecedentes
+
+\` \* Calcular escoacum es el número de años de escolaridad. /\* 00 Ninguno 01 Preescolar 02 Primaria 03 Secundaria 04 Preparatoria o bachillerato 05 Normal básica 06 Estudios técnicos o comerciales con primaria terminada 07 Estudios técnicos o comerciales con secundaria terminada 08 Estudios técnicos o comerciales con preparatoria terminada 09 Normal de licenciatura 10 Licenciatura o profesional 11 Maestría 12 Doctorado\*/
+
+gen escoacum = . label var escoacum "Años aprobados"
+
+replace escoacum=0 if nivel==0 // ninguna replace escoacum=0 if nivel==1 // preescolar
+
+replace escoacum=grado if nivel==2 // primaria
+
+replace escoacum=grado+6 if nivel==3 // secundaria replace escoacum=grado+6 if nivel==6 // estudios técnicos con primaria terminada
+
+replace escoacum=grado+9 if nivel==4 // preparatoria o bachillerato replace escoacum=grado+9 if nivel==5 // Normal básica replace escoacum=grado+9 if nivel==7 // estudios técnicos con secundaria terminada
+
+replace escoacum=grado+12 if nivel\>7 & nivel\<11 // niveles con preparatoria terminada
+
+replace escoacum=grado+16 if nivel==11 // maestría
+
+replace escoacum=grado+18 if nivel==12 // doctorado\`
+
+### Tipo de hogar
+
+```{r}
+poblacion2022 %>% 
+  tabyl(parentesco) %>% 
+  adorn_totals()
+```
+
+Vamos a quedarnos sólo un dígito ¿se recuerdan cómo hacer esto?
+
+```{r}
+poblacion2022 %<>% 
+  mutate(parent1d=stringr::str_sub(parentesco, start = 1, end = 1)) 
+
+poblacion2022 %>% 
+  tabyl(parent1d) %>% 
+  adorn_totals()
+```
+
+1 - Jefe 2 - Cónyuge 3 - Hijo(a) 4 - Trabajadores del hogar + sus parientes 5 - Otros parentescos 6 - Otros 7 - Huéspedes
+
+Vamos a crear *dummies* para cada una de estas opciones
+
+```{r}
+poblacion2022 %<>% 
+  fastDummies::dummy_cols(select_columns = "parent1d") 
+
+names(poblacion2022) # veamos que hizo este paquete
+```
+
+```{r}
+poblacion2022 %>% 
+  summarise_at((vars(starts_with("parent1d_"))), ~ mean(.x))
+
+poblacion2022 %>% 
+  tabyl(parent1d) %>% 
+  adorn_pct_formatting()
+```
+
+Vamos a crear variables de conteo por hogar. Recordemos que el id del hogar era folioviv + foliohog
+
+```{r}
+poblacion2022 %<>% 
+  group_by(folioviv, foliohog) %>% 
+  mutate_at(vars(starts_with("parent1d_")), ~ sum(.x)) %>% 
+  ungroup()
+```
+
+Hoy estas variables tendran conteos a nivel de hogar
+
+```{r}
+poblacion2022 %>% 
+  summarise_at((vars(starts_with("parent1d_"))), ~ mean(.x))
+
+```
+
+Como ves todos los hogares tienen un jefe o jefa de hogar.
+
+Hoy de nuevo, con un `case_when()` haremos los tipos de hogar. Recuerda que trabajadores y huéspedes no son parte de la organización familiar.
+
+```{r}
+poblacion2022 %>% 
+mutate(tipo_hog = case_when(
+  parent1d_2 >  0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6==0 ~ 1, # pareja con hijes
+  parent1d_2 >  0 & parent1d_3==0 & parent1d_5==0 & parent1d_6==0 ~ 2, # pareja sin hijes
+  parent1d_2 == 0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6==0 ~ 3, # mono con hijes
+  parent1d_2 == 0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6> 0 ~ 4, # mono con hijes + fam
+  parent1d_2 >  0 & parent1d_3==0 & parent1d_5==0 & parent1d_6 >0 ~ 5, # pareja sin hijes + fam
+  parent1d_2 >  0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6 >0 ~ 6, # pareja con hijes + fam
+  parent1d_2 == 0 & parent1d_3==0 & parent1d_5==0 & parent1d_6==0 ~ 7, # uni
+  parent1d_5 >  0 ~ 8 #compuesto 
+  )) %>% 
+  filter(parent1d==1) %>% 
+  tabyl(tipo_hog)
+
+
+
+
+
+```
+
+¿Por qué hay *missings*?
+
+```{r}
+poblacion2022 %>% 
+  mutate(tipo_hog = case_when(
+  parent1d_2 >  0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6==0 ~ 1, # pareja con hijes
+  parent1d_2 >  0 & parent1d_3==0 & parent1d_5==0 & parent1d_6==0 ~ 2, # pareja sin hijes
+  parent1d_2 == 0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6==0 ~ 3, # mono con hijes
+  parent1d_2 == 0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6> 0 ~ 4, # mono con hijes + fam
+  parent1d_2 >  0 & parent1d_3==0 & parent1d_5==0 & parent1d_6 >0 ~ 5, # pareja sin hijes + fam
+  parent1d_2 >  0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6 >0 ~ 6, # pareja con hijes + fam
+  parent1d_2 == 0 & parent1d_3==0 & parent1d_5==0 & parent1d_6==0 ~ 7, # uni
+  parent1d_5 >  0 ~ 8 #compuesto 
+  )) %>% 
+  filter(is.na(tipo_hog)) %>% 
+  select(starts_with("parent1d"))
+```
+
+Asi me doy cuenta de qué arreglo falta: faltan jefes solos(as) que viven con otros miembros familiares
+
+```{r}
+poblacion2022 %>% 
+  mutate(tipo_hog = case_when(
+  parent1d_2 >  0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6==0 ~ 1, # pareja con hijes
+  parent1d_2 >  0 & parent1d_3==0 & parent1d_5==0 & parent1d_6==0 ~ 2, # pareja sin hijes
+  parent1d_2 == 0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6==0 ~ 3, # mono con hijes
+  parent1d_2 == 0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6> 0 ~ 4, # mono con hijes + fam
+  parent1d_2 == 0 & parent1d_3==0 & parent1d_5==0 & parent1d_6>=0 ~ 5, # jefe + fam
+  parent1d_2 >  0 & parent1d_3==0 & parent1d_5==0 & parent1d_6 >0 ~ 6, # pareja sin hijes + fam
+  parent1d_2 >  0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6 >0 ~ 7, # pareja con hijes + fam
+  parent1d_2 == 0 & parent1d_3==0 & parent1d_5==0 & parent1d_6==0 ~ 8, # uni
+  parent1d_5 >  0 ~ 9 #compuesto 
+  )) %>% 
+  filter(is.na(tipo_hog)) %>% 
+  select(starts_with("parent1d"))
+```
+
+Hoy sí ya tenemos nuestra variable
+
+```{r}
+poblacion2022 %<>% 
+  mutate(tipo_hog = case_when(
+  parent1d_2 >  0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6==0 ~ 1, # pareja con hijes
+  parent1d_2 >  0 & parent1d_3==0 & parent1d_5==0 & parent1d_6==0 ~ 2, # pareja sin hijes
+  parent1d_2 == 0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6==0 ~ 3, # mono con hijes
+  parent1d_2 == 0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6> 0 ~ 4, # mono con hijes + fam
+  parent1d_2 == 0 & parent1d_3==0 & parent1d_5==0 & parent1d_6>=0 ~ 5, # jefe + fam
+  parent1d_2 >  0 & parent1d_3==0 & parent1d_5==0 & parent1d_6 >0 ~ 6, # pareja sin hijes + fam
+  parent1d_2 >  0 & parent1d_3 >0 & parent1d_5==0 & parent1d_6 >0 ~ 7, # pareja con hijes + fam
+  parent1d_2 == 0 & parent1d_3==0 & parent1d_5==0 & parent1d_6==0 ~ 8, # uni
+  parent1d_5 >  0 ~ 9 #compuesto 
+  )) 
+```
+
+En esta encuesta también tenemos una bateria de tiempo. Vamos a hacer algunas sumatorias de tiempo
+
+```{r}
+poblacion2022 %>% 
+  select(hor_1:usotiempo8)
+
+```
+
+En esta base tenemos valores no para todas la persona del hogar... Y además si ponen 9, significa que no lo hizo.
+
+```{r}
+time_use<-poblacion2022 %>% 
+  select(folioviv, foliohog, numren, hor_1:usotiempo8)
+
+```
+
+Vamos a hacer una base larga que tiene una línea por actividad para cada individuo (309684\*8)
+
+```{r}
+time_use_long <- time_use %>% 
+  pivot_longer(cols = -c(folioviv,foliohog, numren ),
+  names_to = c(".value", "act"),
+  names_pattern = "(.*)(.)") 
+ 
+```
+
+```{r}
+head(time_use_long)
+
+```
+
+```{r}
+time_use_long %<>% 
+  mutate(tiempo=case_when(
+    usotiempo=="9" ~ 0, 
+    usotiempo=="8" ~ NA, 
+    usotiempo!="9" ~ hor_*60 + min_
+  )) %>% 
+  mutate(tiempo=tiempo/60) 
+```
+
+Hoy volveremos a tener una base donde tenemos el tiempo en horas para cada individuo, con `pivot_wider()`
+
+```{r}
+time_use_long %>% 
+  select(folioviv, foliohog, numren, act, tiempo) %>% 
+  pivot_wider(names_from = act,
+              names_prefix = "tiempo_",
+              values_from = tiempo) %>% 
+  mutate(total_tiempo=rowSums(pick(tiempo_1:tiempo_8))) -> time_use
+
+```
+
+Hoy hacemos un *join*
+
+```{r}
+poblacion2022 %<>%
+  left_join(time_use)
+```
+
+```{r}
+names(poblacion2022)
+```
+
+## Tasas de crecimiento
+
+### Fechas censales y tasas de crecimiento
+
+```{r}
+censos <- readxl::read_excel("datos/censos.xlsx", 
+                     col_types = c("numeric","date", "numeric"))
+
+
+```
+
+Un elemento fundamental es encontrar los periodos intercensales en años. Los censos tienen diferentes fechas.
+
+```{r}
+censos<-censos %>%
+    mutate(dias = c(NA, diff(fecha))) %>% 
+    mutate(n=dias/365) %>% 
+  clean_names
+
+censos  
+
+```
+
+Con esta base ya podemos ir calculando diferentes tipos de crecimiento básicos.
+
+### Ritmo
+
+$$ ritmo=\frac{P_{t+n}}{P_t} $$
+
+```{r}
+censos<-censos %>% 
+   mutate(ritmo = poblacion/lag(poblacion))
+censos
+```
+
+### Crecimiento
+
+$$ c=\frac{P_{t+n}-{P_t}}{P_t} =\frac{P_{t+n}}{P_t}-1 $$
+
+Básicamente es el ritmo menos 1
+
+```{r}
+censos<-censos %>% 
+   mutate(c = ritmo-1)
+censos
+```
+
+### Crecimiento aritmético
+
+$$ r_a=\frac{P_{t+n}-{P_t}}{n*P_t} =\frac{c}n $$ Básicamente es el crecimiento entre el periodo intercensal.
+
+```{r}
+censos<-censos %>% 
+   mutate(ra = c/n)
+censos
+```
+
+### Crecimiento geométrico
+
+$$ r_g=\sqrt[n]\frac{P_{t+n}}{{P_t}}-1 $$ Es la raíz n-ésima del ritmo menos 1
+
+```{r}
+censos<-censos %>% 
+   mutate(rg = ritmo^(1/n)-1)
+censos
+```
+
+### Crecimiento exponencial
+
+$$ r=\frac{ln\frac{P_{t+n}}{{P_t}}}n$$
+
+Básicamente es logaritmo del ritmo entre n
+
+```{r}
+censos<-censos %>% 
+   mutate(r = log(ritmo)/n)
+censos
+```
+
+Este crecimiento es el más utilizado.
+
+Podemos graficar los diferentes crecimientos, será más fácil si cambiamos el formato
+
+```{r}
+censos %>% 
+  select(c(ano, ra, rg, r)) %>% 
+  pivot_longer(-ano, names_to = "tipo", values_to = "crecimiento") 
+  
+```
+
+```{r}
+censos %>% 
+  select(c(ano, ra, rg, r)) %>% 
+  pivot_longer(-ano, names_to = "tipo", values_to = "crecimiento") %>% 
+  ggplot(aes(ano,crecimiento, group=tipo, color=tipo)) + 
+  geom_line() + theme_minimal()
+           
+```
+
+Con estas tasas de crecimiento también podemos hacer estimaciones de tiempo y de poblaciones en fechas específicas.
+
+### Proyeccion
+
+$$ P_{t+n}= P_t * e^{nr} $$ Vamos a proyectar la población al primero de julio de 2009
+
+```{r}
+n<-difftime(as.Date("2009-07-1"),
+        as.Date("2000-02-14"))
+n
+
+n<-as.numeric(n/365)
+
+n
+```
+
+```{r}
+ptn=censos[11,"poblacion"]*exp(n*censos[12,10])
+paste(ptn) # para ver los decimales
+```
+
+### Tiempo
+
+$$ n=\frac{ln\frac{P_{t+n}}{{P_t}}}r$$
+
+¿Cuánto tiempo tardaría en duplicarse la población del último censo?
+
+```{r}
+n_calc<-log(2*censos[12,"poblacion"]/censos[12,"poblacion"])/censos[12,"r"]
+n_calc
+
+
+```
+
+¿En qué fecha se llegaría ese valor?
+
+Con el paquete {lubridate},  una maravilla para el uso de fechas. Nos da más control
+```{r}
+
+
+lubridate::ymd("2010/06/12") + lubridate::days(round(n_calc*365,0))
+```

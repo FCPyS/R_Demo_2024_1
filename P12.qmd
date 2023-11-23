@@ -27,7 +27,7 @@ El paquete fue creado Philipp Ottolinger, este ejercicio es una versión en espa
 
 ### Dibujar una cuadrícula
 
-Este paquete nos puede ayudar a hacer nuestras cuadrículas. Ponemos los años de inicio y de final; así como las edades de inicio y de final. Recuerda que un diagrama de Lexis debe tener una misma escala en los ejes. 
+Este paquete nos puede ayudar a hacer nuestras cuadrículas. Ponemos los años de inicio y de final; así como las edades de inicio y de final. Recuerda que un diagrama de Lexis debe tener una misma escala en los ejes.
 
 ```{r}
 # Dibuje una cuadrícula de Lexis desde el año 2010 hasta el año 2015, que representa las edades de 0 a 5 años.
@@ -35,6 +35,7 @@ lexis_grid(year_start = 2010, year_end = 2015, age_start = 0, age_end = 5)
 ```
 
 Aunque no necesariamente podemos dibujar sólo cuadrados
+
 ```{r}
 # Dibuje una cuadrícula de Lexis desde el año 2010 hasta el año 2015, que representa las edades de 0 a 7 años.
 
@@ -58,7 +59,6 @@ mi_diagrama <- lexis_grid(year_start = 1995, year_end = 2000, age_start = 0, age
 
 ```
 
-
 ```{r}
 mi_diagrama
 ```
@@ -73,7 +73,7 @@ lexis_age(lg = mi_diagrama, age = 2)
 
 ```
 
-¿Qué tipo de observación o estudio sería este? 
+¿Qué tipo de observación o estudio sería este?
 
 Para cambiar el color:
 
@@ -82,52 +82,55 @@ lexis_age(lg = mi_diagrama, age = 2, fill = "red", alpha = 0.5)
 ```
 
 #### Periodo
+
 También podemos sombrear períodos
 
 ```{r}
 lexis_year(lg = mi_diagrama, year=1998)
 
 ```
-¿Qué tipo de observación o estudio sería este? 
 
-Para cambiar el color:
-[Más info del color <http://sape.inf.usi.ch/quick-reference/ggplot2/colour>]
+¿Qué tipo de observación o estudio sería este?
+
+Para cambiar el color: \[Más info del color <http://sape.inf.usi.ch/quick-reference/ggplot2/colour>\]
+
 ```{r}
 lexis_year(lg = mi_diagrama, year=1998, fill = "grey70", alpha = 0.5)
 ```
-
 
 #### Cohorte
 
 ```{r}
 lexis_cohort(lg = mi_diagrama, cohort=1994)
 ```
+
 ¿Qué tipo de observación o estudio sería este?
 
 También podemos cambiar el color y la transparencia:
+
 ```{r}
 lexis_cohort(lg = mi_diagrama, cohort=1994, fill="plum1", alpha=0.8)
 ```
 
 #### Líneas de vida
+
 Alguien entra
+
 ```{r}
 lexis_lifeline(lg = mi_diagrama, birth = "1996-09-23")
 
 ```
 
-
 Alguien entra y sale
+
 ```{r}
 lexis_lifeline(lg = mi_diagrama, birth =  "1996-09-23", exit="1999-09-23")
 
 ```
 
-
 #### Polígonos
 
-No es tan sencillo, pero podemos dibujar un espacio "APC", o varios. 
-
+No es tan sencillo, pero podemos dibujar un espacio "APC", o varios.
 
 ```{r}
 
@@ -146,12 +149,11 @@ lexis_polygon(lg = mi_diagrama, x = polygons$x, y = polygons$y, group = polygons
 
 checa que básicamente se trata de colocar los puntos que dibujan el polígono. Son tres puntos:
 
-1. Fecha: "1996-01-01", edad=1
+1.  Fecha: "1996-01-01", edad=1
 
-2. Fecha: "1997-01-01", edad=1
+2.  Fecha: "1997-01-01", edad=1
 
-3. Fecha: "1997-01-01", edad=2
-
+3.  Fecha: "1997-01-01", edad=2
 
 Si queremos más triángulos, podemos agregarlos en el mismo objeto:
 
@@ -179,7 +181,6 @@ polygons <- data.frame(group = c(1,
 lexis_polygon(lg = mi_diagrama, x = polygons$x, y = polygons$y, group = polygons$group)
 ```
 
-
 #### Todo en uno
 
 Podemos ir reescribiendo nuestro objeto
@@ -193,20 +194,9 @@ mi_diagrama2<-lexis_lifeline(lg = mi_diagrama2, birth = "1996-09-23", exit="1999
 mi_diagrama2
 ```
 
-
 #### Anotación manual
 
 Para hacer cuadrados
-```{r}
-mi_diagrama  + 
-   annotate("rect", 
-            xmin = as.Date("1996-01-01"),
-            xmax = as.Date("1997-01-01"), 
-            ymin = 0, ymax = 1, alpha = .2)
-```
-
-¿Qué tipo de observación es esta?
-
 
 ```{r}
 mi_diagrama  + 
@@ -218,6 +208,15 @@ mi_diagrama  +
 
 ¿Qué tipo de observación es esta?
 
+```{r}
+mi_diagrama  + 
+   annotate("rect", 
+            xmin = as.Date("1996-01-01"),
+            xmax = as.Date("1997-01-01"), 
+            ymin = 0, ymax = 1, alpha = .2)
+```
+
+¿Qué tipo de observación es esta?
 
 Si quisiéramos gráficar la fecha de un censo:
 
@@ -233,23 +232,19 @@ mi_diagrama  +
    geom_hline(yintercept = 4, colour = "red")
 ```
 
-
-
 ## `{IPUMSr}`
 
 <https://international.ipums.org/international/>
 
-Vamos a utilizar los datos de la consulta que ya generé. Ustedes pueden cambiar sus países y variables, pero dejen edad y censo que utilizaremos el índice de whipple. 
+Vamos a utilizar los datos de la consulta que ya generé. Ustedes pueden cambiar sus países y variables, pero dejen edad y censo que utilizaremos el índice de whipple.
 
-Pedí datos de la última ronda de censos de Argentina, Canadá y Costa Rica. 
+Pedí datos de la última ronda de censos de Argentina, Canadá y Costa Rica.
 
 ![Primer paso](ima/ipums1.png)
 
 ![Segundo paso](ima/ipums2.png)
 
-
-![Tercer paso](ima/ipums3.png)
-Cuando ya tenemos el correito que nos dice incluso hasta cómo citar nuestra fuente, revisamos de nuevo nuestro "Dashboard"
+![Tercer paso](ima/ipums3.png) Cuando ya tenemos el correito que nos dice incluso hasta cómo citar nuestra fuente, revisamos de nuevo nuestro "Dashboard"
 
 ![Descargar datos](ima/ipums4.png)
 
@@ -270,7 +265,6 @@ Revisemos la base
 ```{r}
 skimr::skim(data)
 ```
-
 
 ```{r}
 data <- data %>%
@@ -298,7 +292,6 @@ data %>%
 
 ### Paquete `{fmsb}`
 
-
 Revisemos el índice de Whipple para Costa Rica:
 
 ```{r}
@@ -312,6 +305,7 @@ data %>%
     eda)) %>% 
   with(fmsb::WhipplesIndex(eda_w))
 ```
+
 ```{r}
 # con expandir
 data %>%
@@ -324,10 +318,10 @@ data %>%
     count(eda_w, wt=PERWT) %>% 
   with(fmsb::WhipplesIndex(n))
 ```
+
 ### Paquete `{DemoTools}`
 
-
-#### Indice de Whipple 
+#### Indice de Whipple
 
 Lo más facil es tener nuestros datos agregados
 
@@ -340,7 +334,8 @@ data_wide<- data%>%
 
 ```
 
-Con formato _tidy_
+Con formato *tidy*
+
 ```{r}
 
  data_wide %>% 
@@ -351,9 +346,7 @@ Con formato _tidy_
                              digit = c(0, 5)))
 ```
 
-
-Sin formato _tidy_
-
+Sin formato *tidy*
 
 ```{r}
 
@@ -365,10 +358,7 @@ check_heaping_whipple(Value=data_wide$Male,
 
 ```
 
-
-
-
-#### Noumbissi 
+#### Noumbissi
 
 ```{r}
 check_heaping_noumbissi(Value=data_wide$Male,
@@ -405,8 +395,7 @@ for(i in 3:9) {
 
 ```
 
-
-#### Spoorrenberg 
+#### Spoorrenberg
 
 > Using the digit-specific modified Whipple's index, this index summarizes all age preference and avoidance effects by taking the sum of the absolute differences between digit-specific Whipple's index and 1 (counting all differences as positive).
 
@@ -418,7 +407,6 @@ spoor<-check_heaping_spoorenberg(Value = data_wide$Male,
 spoor
 ```
 
-
 #### Indice de Myers
 
 ```{r}
@@ -429,4 +417,3 @@ check_heaping_myers(Value = data_wide$Male,
                     method="pasex")
 
 ```
-

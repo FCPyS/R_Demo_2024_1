@@ -35,6 +35,7 @@ website:
           - P11.qmd
           - P12.qmd
           - P13.qmd
+          - P14.qmd
     
 format:
   html:

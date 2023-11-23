@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Uso de R para la demografía social - Sesión 14</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Uso de R para la demografía social</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html">
+ <span class="menu-text">Inicio</span></a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Sesión 14</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Instalar R</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./instala.html" class="sidebar-item-text sidebar-link">Instalación de R y Rstudio</a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Sesiones</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P1.html" class="sidebar-item-text sidebar-link">Sesión 1</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P2.html" class="sidebar-item-text sidebar-link">Sesión 2</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P3.html" class="sidebar-item-text sidebar-link">Sesión 3</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P4.html" class="sidebar-item-text sidebar-link">Sesión 4</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P5.html" class="sidebar-item-text sidebar-link">Sesión 5</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P6.html" class="sidebar-item-text sidebar-link">Sesión 6</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P7.html" class="sidebar-item-text sidebar-link">Sesión 7</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P8.html" class="sidebar-item-text sidebar-link">Sesión 8</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P9.html" class="sidebar-item-text sidebar-link">Sesión 9</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P10.html" class="sidebar-item-text sidebar-link">Sesión 10</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P11.html" class="sidebar-item-text sidebar-link">Sesión 11</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P12.html" class="sidebar-item-text sidebar-link">Sesion 12</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P13.html" class="sidebar-item-text sidebar-link">Sesion 13</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./P14.html" class="sidebar-item-text sidebar-link active">Sesión 14</a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#aplicaciones-relacionadas-a-la-demografía-iii" id="toc-aplicaciones-relacionadas-a-la-demografía-iii" class="nav-link active" data-scroll-target="#aplicaciones-relacionadas-a-la-demografía-iii">Aplicaciones relacionadas a la demografía (III)</a>
+  <ul class="collapse">
+  <li><a href="#paquetes" id="toc-paquetes" class="nav-link" data-scroll-target="#paquetes">Paquetes</a></li>
+  <li><a href="#datos" id="toc-datos" class="nav-link" data-scroll-target="#datos">Datos</a>
+  <ul class="collapse">
+  <li><a href="#años-de-escolaridad" id="toc-años-de-escolaridad" class="nav-link" data-scroll-target="#años-de-escolaridad">Años de escolaridad</a></li>
+  <li><a href="#tipo-de-hogar" id="toc-tipo-de-hogar" class="nav-link" data-scroll-target="#tipo-de-hogar">Tipo de hogar</a></li>
+  </ul></li>
+  <li><a href="#tasas-de-crecimiento" id="toc-tasas-de-crecimiento" class="nav-link" data-scroll-target="#tasas-de-crecimiento">Tasas de crecimiento</a>
+  <ul class="collapse">
+  <li><a href="#fechas-censales-y-tasas-de-crecimiento" id="toc-fechas-censales-y-tasas-de-crecimiento" class="nav-link" data-scroll-target="#fechas-censales-y-tasas-de-crecimiento">Fechas censales y tasas de crecimiento</a></li>
+  <li><a href="#ritmo" id="toc-ritmo" class="nav-link" data-scroll-target="#ritmo">Ritmo</a></li>
+  <li><a href="#crecimiento" id="toc-crecimiento" class="nav-link" data-scroll-target="#crecimiento">Crecimiento</a></li>
+  <li><a href="#crecimiento-aritmético" id="toc-crecimiento-aritmético" class="nav-link" data-scroll-target="#crecimiento-aritmético">Crecimiento aritmético</a></li>
+  <li><a href="#crecimiento-geométrico" id="toc-crecimiento-geométrico" class="nav-link" data-scroll-target="#crecimiento-geométrico">Crecimiento geométrico</a></li>
+  <li><a href="#crecimiento-exponencial" id="toc-crecimiento-exponencial" class="nav-link" data-scroll-target="#crecimiento-exponencial">Crecimiento exponencial</a></li>
+  <li><a href="#proyeccion" id="toc-proyeccion" class="nav-link" data-scroll-target="#proyeccion">Proyeccion</a></li>
+  <li><a href="#tiempo" id="toc-tiempo" class="nav-link" data-scroll-target="#tiempo">Tiempo</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/fcpys/R_Demo_2024_1/edit/main/P14.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/fcpys/R_Demo_2024_1/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Sesión 14</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="aplicaciones-relacionadas-a-la-demografía-iii" class="level1">
+<h1>Aplicaciones relacionadas a la demografía (III)</h1>
+<section id="paquetes" class="level2">
+<h2 class="anchored" data-anchor-id="paquetes">Paquetes</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Instalación de {DemoTools}</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># remotes::install_github("timriffe/DemoTools")</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(<span class="st">"pacman"</span>)) <span class="fu">install.packages</span>(<span class="st">"pacman"</span>) <span class="co"># instala pacman si se requiere</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: pacman</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, janitor, magrittr,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>               haven, readxl, <span class="co"># importación de dta y excel</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>               sjlabelled, <span class="co"># etiquetas</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>               gt, <span class="co"># grammar of table</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>               pollster,  <span class="co"># para tabulados</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>               lubridate, <span class="co"># para manejo de fechas)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>               fastDummies) <span class="co">#  para crear dummies</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="datos" class="level2">
+<h2 class="anchored" data-anchor-id="datos">Datos</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="ot">&lt;-</span> haven<span class="sc">::</span><span class="fu">read_dta</span>(<span class="st">"datos/poblacion2022.dta"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Y tenemos que tener a la mano nuestro <a href="https://www.inegi.org.mx/contenidos/productos/prod_serv/contenidos/espanol/bvinegi/productos/nueva_estruc/889463910626.pdf">descriptor de archivos</a> ## Variables básicas</p>
+<section id="años-de-escolaridad" class="level3">
+<h3 class="anchored" data-anchor-id="años-de-escolaridad">Años de escolaridad</h3>
+<p>Se construye junto con nivel, grado y en este caso antecedente. Esta última no siempre está disponible.</p>
+<p><img src="ima/anios1.png" class="img-fluid" alt="Nivel"> <img src="ima/anios2.png" class="img-fluid" alt="Año"></p>
+<p><img src="ima/anios3.png" class="img-fluid" alt="antecedente"> <img src="ima/anios4.png" class="img-fluid" alt="antecedente2"></p>
+<p>Revisemos estas variables</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(nivelaprob) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adorn_totals</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> nivelaprob      n     percent
+             11472 0.037044213
+          0  17445 0.056331615
+          1  13245 0.042769404
+          2  87665 0.283078880
+          3  79751 0.257523798
+          4  51059 0.164874517
+          5   1463 0.004724170
+          6   7180 0.023184924
+          7  37269 0.120345255
+          8   2572 0.008305240
+          9    563 0.001817982
+      Total 309684 1.000000000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(gradoaprob)<span class="sc">%&gt;%</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adorn_totals</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> gradoaprob      n    percent
+             11472 0.03704421
+          0  17443 0.05632516
+          1  32022 0.10340218
+          2  39624 0.12794978
+          3 127677 0.41228155
+          4  23251 0.07507976
+          5  21511 0.06946113
+          6  36684 0.11845623
+      Total 309684 1.00000000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(antec_esc)<span class="sc">%&gt;%</span> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adorn_totals</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> antec_esc      n     percent
+           260630 0.841599824
+         1    496 0.001601633
+         2   5204 0.016804226
+         3  40219 0.129871094
+         4   2572 0.008305240
+         5    563 0.001817982
+     Total 309684 1.000000000</code></pre>
+</div>
+</div>
+<p>Esta variable está como cadena, como vamos a hacer operaciones es mejor que estén en formato numérico.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&lt;&gt;%</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(nivelaprob, gradoaprob, antec_esc), <span class="sc">~</span> readr<span class="sc">::</span><span class="fu">parse_number</span>(.x))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>La variable se construirá con un <code>case_when()</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">escoacum =</span> <span class="fu">case_when</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&lt;</span> <span class="dv">2</span>  <span class="sc">~</span> <span class="dv">0</span>, <span class="co"># ninguna y preescolar no suman</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> gradoaprob, <span class="co"># en primaria cuentan los grados nomás</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="dv">6</span> <span class="sc">+</span> gradoaprob, <span class="co"># secundaria se suma primaria</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">9</span> <span class="sc">+</span> gradoaprob, <span class="co"># Bachillerato y prepa</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&amp;</span> nivelaprob <span class="sc">&lt;</span><span class="dv">8</span> <span class="sc">&amp;</span> antec_esc<span class="sc">==</span><span class="dv">1</span> <span class="sc">~</span> <span class="dv">6</span> <span class="sc">+</span> gradoaprob, <span class="co"># Normales y técnicos con primaria</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&amp;</span> nivelaprob <span class="sc">&lt;</span><span class="dv">8</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span><span class="dv">2</span> <span class="sc">~</span> <span class="dv">9</span> <span class="sc">+</span> gradoaprob, <span class="co"># Normales y técnicos con secundaria</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&amp;</span> nivelaprob <span class="sc">&lt;</span><span class="dv">8</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span><span class="dv">3</span> <span class="sc">~</span> <span class="dv">12</span> <span class="sc">+</span> gradoaprob, <span class="co"># Normales y técnicos con prepa o bachillerato</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&amp;</span> nivelaprob <span class="sc">&lt;</span><span class="dv">8</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span><span class="dv">4</span> <span class="sc">~</span> <span class="dv">16</span> <span class="sc">+</span> gradoaprob, <span class="co"># Normales y técnicos con licenciatura</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">8</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">16</span> <span class="sc">+</span> gradoaprob, <span class="co"># Maestría con licenciatura</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">9</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">16</span> <span class="sc">+</span> gradoaprob, <span class="co"># Doctorado con licenciatura</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">9</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span> <span class="dv">5</span> <span class="sc">~</span> <span class="dv">18</span> <span class="sc">+</span> gradoaprob <span class="co"># Doctorado con maestría</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>      )) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(escoacum)) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(nivelaprob, antec_esc)<span class="sc">%&gt;%</span>  <span class="co"># estos no se sabe qué son. podemos revisar nivel actual</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adorn_totals</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> nivelaprob   NA_
+       &lt;NA&gt; 11472
+      Total 11472</code></pre>
+</div>
+</div>
+<p>Hoy revisamos la distribución</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(<span class="at">escoacum =</span> <span class="fu">case_when</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&lt;</span> <span class="dv">2</span>  <span class="sc">~</span> <span class="dv">0</span>, <span class="co"># ninguna y preescolar no suman</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> gradoaprob, <span class="co"># en primaria cuentan los grados nomás</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="dv">6</span> <span class="sc">+</span> gradoaprob, <span class="co"># secundaria se suma primaria</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">9</span> <span class="sc">+</span> gradoaprob, <span class="co"># Bachillerato y prepa</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&amp;</span> nivelaprob <span class="sc">&lt;</span><span class="dv">8</span> <span class="sc">&amp;</span> antec_esc<span class="sc">==</span><span class="dv">1</span> <span class="sc">~</span> <span class="dv">6</span> <span class="sc">+</span> gradoaprob, <span class="co"># Normales y técnicos con primaria</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&amp;</span> nivelaprob <span class="sc">&lt;</span><span class="dv">8</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span><span class="dv">2</span> <span class="sc">~</span> <span class="dv">9</span> <span class="sc">+</span> gradoaprob, <span class="co"># Normales y técnicos con secundaria</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&amp;</span> nivelaprob <span class="sc">&lt;</span><span class="dv">8</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span><span class="dv">3</span> <span class="sc">~</span> <span class="dv">12</span> <span class="sc">+</span> gradoaprob, <span class="co"># Normales y técnicos con prepa o bachillerato</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&amp;</span> nivelaprob <span class="sc">&lt;</span><span class="dv">8</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span><span class="dv">4</span> <span class="sc">~</span> <span class="dv">16</span> <span class="sc">+</span> gradoaprob, <span class="co"># Normales y técnicos con licenciatura</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">8</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">16</span> <span class="sc">+</span> gradoaprob, <span class="co"># Maestría con licenciatura</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">9</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">16</span> <span class="sc">+</span> gradoaprob, <span class="co"># Doctorado con licenciatura</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">9</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span> <span class="dv">5</span> <span class="sc">~</span> <span class="dv">18</span> <span class="sc">+</span> gradoaprob <span class="co"># Doctorado con maestría</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>      )) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(escoacum)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> escoacum     n      percent valid_percent
+        0 30690 9.910102e-02  1.029134e-01
+        1  8351 2.696620e-02  2.800357e-02
+        2 10806 3.489363e-02  3.623597e-02
+        3 13820 4.462614e-02  4.634287e-02
+        4  9513 3.071841e-02  3.190012e-02
+        5  8508 2.747317e-02  2.853004e-02
+        6 36667 1.184013e-01  1.229562e-01
+        7  7852 2.535488e-02  2.633026e-02
+        8  9675 3.124152e-02  3.244336e-02
+        9 62685 2.024160e-01  2.102028e-01
+       10  7656 2.472197e-02  2.567301e-02
+       11  9182 2.964958e-02  3.079018e-02
+       12 38843 1.254279e-01  1.302530e-01
+       13  4585 1.480541e-02  1.537497e-02
+       14  4413 1.425001e-02  1.479820e-02
+       15  5994 1.935521e-02  2.009979e-02
+       16 12966 4.186849e-02  4.347914e-02
+       17 13101 4.230441e-02  4.393183e-02
+       18  1695 5.473321e-03  5.683876e-03
+       19   636 2.053706e-03  2.132711e-03
+       20   249 8.040454e-04  8.349765e-04
+       21   187 6.038413e-04  6.270707e-04
+       22    86 2.777024e-04  2.883854e-04
+       23    43 1.388512e-04  1.441927e-04
+       24     9 2.906188e-05  3.017987e-05
+       NA 11472 3.704421e-02            NA</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&lt;&gt;%</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(<span class="at">escoacum =</span> <span class="fu">case_when</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&lt;</span> <span class="dv">2</span>  <span class="sc">~</span> <span class="dv">0</span>, <span class="co"># ninguna y preescolar no suman</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> gradoaprob, <span class="co"># en primaria cuentan los grados nomás</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="dv">6</span> <span class="sc">+</span> gradoaprob, <span class="co"># secundaria se suma primaria</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">9</span> <span class="sc">+</span> gradoaprob, <span class="co"># Bachillerato y prepa</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&amp;</span> nivelaprob <span class="sc">&lt;</span><span class="dv">8</span> <span class="sc">&amp;</span> antec_esc<span class="sc">==</span><span class="dv">1</span> <span class="sc">~</span> <span class="dv">6</span> <span class="sc">+</span> gradoaprob, <span class="co"># Normales y técnicos con primaria</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&amp;</span> nivelaprob <span class="sc">&lt;</span><span class="dv">8</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span><span class="dv">2</span> <span class="sc">~</span> <span class="dv">9</span> <span class="sc">+</span> gradoaprob, <span class="co"># Normales y técnicos con secundaria</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&amp;</span> nivelaprob <span class="sc">&lt;</span><span class="dv">8</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span><span class="dv">3</span> <span class="sc">~</span> <span class="dv">12</span> <span class="sc">+</span> gradoaprob, <span class="co"># Normales y técnicos con prepa o bachillerato</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&amp;</span> nivelaprob <span class="sc">&lt;</span><span class="dv">8</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span><span class="dv">4</span> <span class="sc">~</span> <span class="dv">16</span> <span class="sc">+</span> gradoaprob, <span class="co"># Normales y técnicos con licenciatura</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">8</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">16</span> <span class="sc">+</span> gradoaprob, <span class="co"># Maestría con licenciatura</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">9</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">16</span> <span class="sc">+</span> gradoaprob, <span class="co"># Doctorado con licenciatura</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    nivelaprob <span class="sc">==</span> <span class="dv">9</span>  <span class="sc">&amp;</span> antec_esc<span class="sc">==</span> <span class="dv">5</span> <span class="sc">~</span> <span class="dv">18</span> <span class="sc">+</span> gradoaprob <span class="co"># Doctorado con maestría</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>      ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Hoy tenemos nuestra variable</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(edad<span class="sc">&gt;</span><span class="dv">3</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hist</span>(escoacum)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="P14_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Aquí dejo el código en STATA para la ENADID 2018, que no tiene antecedentes</p>
+<p>` * Calcular escoacum es el número de años de escolaridad. /* 00 Ninguno 01 Preescolar 02 Primaria 03 Secundaria 04 Preparatoria o bachillerato 05 Normal básica 06 Estudios técnicos o comerciales con primaria terminada 07 Estudios técnicos o comerciales con secundaria terminada 08 Estudios técnicos o comerciales con preparatoria terminada 09 Normal de licenciatura 10 Licenciatura o profesional 11 Maestría 12 Doctorado*/</p>
+<p>gen escoacum = . label var escoacum “Años aprobados”</p>
+<p>replace escoacum=0 if nivel==0 // ninguna replace escoacum=0 if nivel==1 // preescolar</p>
+<p>replace escoacum=grado if nivel==2 // primaria</p>
+<p>replace escoacum=grado+6 if nivel==3 // secundaria replace escoacum=grado+6 if nivel==6 // estudios técnicos con primaria terminada</p>
+<p>replace escoacum=grado+9 if nivel==4 // preparatoria o bachillerato replace escoacum=grado+9 if nivel==5 // Normal básica replace escoacum=grado+9 if nivel==7 // estudios técnicos con secundaria terminada</p>
+<p>replace escoacum=grado+12 if nivel&gt;7 &amp; nivel&lt;11 // niveles con preparatoria terminada</p>
+<p>replace escoacum=grado+16 if nivel==11 // maestría</p>
+<p>replace escoacum=grado+18 if nivel==12 // doctorado`</p>
+</section>
+<section id="tipo-de-hogar" class="level3">
+<h3 class="anchored" data-anchor-id="tipo-de-hogar">Tipo de hogar</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(parentesco) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adorn_totals</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> parentesco      n      percent
+        101  90102 2.909482e-01
+        201  56343 1.819371e-01
+        202     96 3.099934e-04
+        205     59 1.905168e-04
+        301 116698 3.768293e-01
+        302      9 2.906188e-05
+        303   1573 5.079371e-03
+        304      1 3.229098e-06
+        401    117 3.778045e-04
+        403      2 6.458196e-06
+        405      5 1.614549e-05
+        406      2 6.458196e-06
+        421      2 6.458196e-06
+        431      7 2.260369e-05
+        451      2 6.458196e-06
+        501   1188 3.836168e-03
+        503      1 3.229098e-06
+        601   2575 8.314927e-03
+        602     19 6.135286e-05
+        603   3350 1.081748e-02
+        604      1 3.229098e-06
+        605      1 3.229098e-06
+        606    118 3.810336e-04
+        607      3 9.687294e-06
+        609  24696 7.974581e-02
+        610    852 2.751192e-03
+        611      3 9.687294e-06
+        612    234 7.556089e-04
+        613   2770 8.944602e-03
+        614    247 7.975872e-04
+        615   1071 3.458364e-03
+        616      6 1.937459e-05
+        617   6565 2.119903e-02
+        618    868 2.802857e-03
+        619     29 9.364384e-05
+        621     11 3.552008e-05
+        622      2 6.458196e-06
+        623     43 1.388512e-04
+        701     12 3.874918e-05
+        712      1 3.229098e-06
+      Total 309684 1.000000e+00</code></pre>
+</div>
+</div>
+<p>Vamos a quedarnos sólo un dígito ¿se recuerdan cómo hacer esto?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&lt;&gt;%</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">parent1d=</span>stringr<span class="sc">::</span><span class="fu">str_sub</span>(parentesco, <span class="at">start =</span> <span class="dv">1</span>, <span class="at">end =</span> <span class="dv">1</span>)) </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(parent1d) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adorn_totals</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> parent1d      n      percent
+        1  90102 2.909482e-01
+        2  56498 1.824376e-01
+        3 118281 3.819409e-01
+        4    137 4.423864e-04
+        5   1189 3.839398e-03
+        6  43464 1.403495e-01
+        7     13 4.197827e-05
+    Total 309684 1.000000e+00</code></pre>
+</div>
+</div>
+<p>1 - Jefe 2 - Cónyuge 3 - Hijo(a) 4 - Trabajadores del hogar + sus parientes 5 - Otros parentescos 6 - Otros 7 - Huéspedes</p>
+<p>Vamos a crear <em>dummies</em> para cada una de estas opciones</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&lt;&gt;%</span> </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  fastDummies<span class="sc">::</span><span class="fu">dummy_cols</span>(<span class="at">select_columns =</span> <span class="st">"parent1d"</span>) </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(poblacion2022) <span class="co"># veamos que hizo este paquete</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] "folioviv"   "foliohog"   "numren"     "parentesco" "sexo"      
+  [6] "edad"       "madre_hog"  "madre_id"   "padre_hog"  "padre_id"  
+ [11] "disc_camin" "disc_ver"   "disc_brazo" "disc_apren" "disc_oir"  
+ [16] "disc_vest"  "disc_habla" "disc_acti"  "cau_camin"  "cau_ver"   
+ [21] "cau_brazo"  "cau_apren"  "cau_oir"    "cau_vest"   "cau_habla" 
+ [26] "cau_acti"   "hablaind"   "lenguaind"  "hablaesp"   "comprenind"
+ [31] "etnia"      "alfabetism" "asis_esc"   "nivel"      "grado"     
+ [36] "tipoesc"    "tiene_b"    "otorg_b"    "forma_b"    "tiene_c"   
+ [41] "otorg_c"    "forma_c"    "nivelaprob" "gradoaprob" "antec_esc" 
+ [46] "residencia" "edo_conyug" "pareja_hog" "conyuge_id" "segsoc"    
+ [51] "ss_aa"      "ss_mm"      "redsoc_1"   "redsoc_2"   "redsoc_3"  
+ [56] "redsoc_4"   "redsoc_5"   "redsoc_6"   "hor_1"      "min_1"     
+ [61] "usotiempo1" "hor_2"      "min_2"      "usotiempo2" "hor_3"     
+ [66] "min_3"      "usotiempo3" "hor_4"      "min_4"      "usotiempo4"
+ [71] "hor_5"      "min_5"      "usotiempo5" "hor_6"      "min_6"     
+ [76] "usotiempo6" "hor_7"      "min_7"      "usotiempo7" "hor_8"     
+ [81] "min_8"      "usotiempo8" "pop_insabi" "atemed"     "inst_1"    
+ [86] "inst_2"     "inst_3"     "inst_4"     "inst_5"     "inst_6"    
+ [91] "inscr_1"    "inscr_2"    "inscr_3"    "inscr_4"    "inscr_5"   
+ [96] "inscr_6"    "inscr_7"    "inscr_8"    "prob_anio"  "prob_mes"  
+[101] "prob_sal"   "aten_sal"   "servmed_1"  "servmed_2"  "servmed_3" 
+[106] "servmed_4"  "servmed_5"  "servmed_6"  "servmed_7"  "servmed_8" 
+[111] "servmed_9"  "servmed_10" "servmed_11" "servmed_12" "hh_lug"    
+[116] "mm_lug"     "hh_esp"     "mm_esp"     "pagoaten_1" "pagoaten_2"
+[121] "pagoaten_3" "pagoaten_4" "pagoaten_5" "pagoaten_6" "pagoaten_7"
+[126] "noatenc_1"  "noatenc_2"  "noatenc_3"  "noatenc_4"  "noatenc_5" 
+[131] "noatenc_6"  "noatenc_7"  "noatenc_8"  "noatenc_9"  "noatenc_10"
+[136] "noatenc_11" "noatenc_12" "noatenc_13" "noatenc_14" "noatenc_15"
+[141] "noatenc_16" "norecib_1"  "norecib_2"  "norecib_3"  "norecib_4" 
+[146] "norecib_5"  "norecib_6"  "norecib_7"  "norecib_8"  "norecib_9" 
+[151] "norecib_10" "norecib_11" "norecib_12" "razon_1"    "razon_2"   
+[156] "razon_3"    "razon_4"    "razon_5"    "razon_6"    "razon_7"   
+[161] "razon_8"    "razon_9"    "razon_10"   "razon_11"   "diabetes"  
+[166] "pres_alta"  "peso"       "segvol_1"   "segvol_2"   "segvol_3"  
+[171] "segvol_4"   "segvol_5"   "segvol_6"   "segvol_7"   "hijos_viv" 
+[176] "hijos_mue"  "hijos_sob"  "trabajo_mp" "motivo_aus" "act_pnea1" 
+[181] "act_pnea2"  "num_trabaj" "c_futuro"   "ct_futuro"  "entidad"   
+[186] "est_dis"    "upm"        "factor"     "escoacum"   "parent1d"  
+[191] "parent1d_1" "parent1d_2" "parent1d_3" "parent1d_4" "parent1d_5"
+[196] "parent1d_6" "parent1d_7"</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_at</span>((<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">"parent1d_"</span>))), <span class="sc">~</span> <span class="fu">mean</span>(.x))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 7
+  parent1d_1 parent1d_2 parent1d_3 parent1d_4 parent1d_5 parent1d_6 parent1d_7
+       &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+1      0.291      0.182      0.382   0.000442    0.00384      0.140  0.0000420</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(parent1d) <span class="sc">%&gt;%</span> </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adorn_pct_formatting</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> parent1d      n percent
+        1  90102   29.1%
+        2  56498   18.2%
+        3 118281   38.2%
+        4    137    0.0%
+        5   1189    0.4%
+        6  43464   14.0%
+        7     13    0.0%</code></pre>
+</div>
+</div>
+<p>Vamos a crear variables de conteo por hogar. Recordemos que el id del hogar era folioviv + foliohog</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&lt;&gt;%</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(folioviv, foliohog) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">"parent1d_"</span>)), <span class="sc">~</span> <span class="fu">sum</span>(.x)) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Hoy estas variables tendran conteos a nivel de hogar</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_at</span>((<span class="fu">vars</span>(<span class="fu">starts_with</span>(<span class="st">"parent1d_"</span>))), <span class="sc">~</span> <span class="fu">mean</span>(.x))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 7
+  parent1d_1 parent1d_2 parent1d_3 parent1d_4 parent1d_5 parent1d_6 parent1d_7
+       &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+1          1      0.723       1.80    0.00193     0.0181      0.814   0.000210</code></pre>
+</div>
+</div>
+<p>Como ves todos los hogares tienen un jefe o jefa de hogar.</p>
+<p>Hoy de nuevo, con un <code>case_when()</code> haremos los tipos de hogar. Recuerda que trabajadores y huéspedes no son parte de la organización familiar.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(<span class="at">tipo_hog =</span> <span class="fu">case_when</span>(</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="co"># pareja con hijes</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">2</span>, <span class="co"># pareja sin hijes</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">3</span>, <span class="co"># mono con hijes</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="dv">4</span>, <span class="co"># mono con hijes + fam</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">5</span>, <span class="co"># pareja sin hijes + fam</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">6</span>, <span class="co"># pareja con hijes + fam</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">7</span>, <span class="co"># uni</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  parent1d_5 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">~</span> <span class="dv">8</span> <span class="co">#compuesto </span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span> </span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(parent1d<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(tipo_hog)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> tipo_hog     n     percent valid_percent
+        1 33090 0.367250449    0.38057230
+        2 11312 0.125546603    0.13010075
+        3 11138 0.123615458    0.12809955
+        4  6873 0.076280216    0.07904725
+        5  1809 0.020077246    0.02080554
+        6  9950 0.110430401    0.11443621
+        7 11886 0.131917161    0.13670240
+        8   890 0.009877694    0.01023600
+       NA  3154 0.035004772            NA</code></pre>
+</div>
+</div>
+<p>¿Por qué hay <em>missings</em>?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tipo_hog =</span> <span class="fu">case_when</span>(</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="co"># pareja con hijes</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">2</span>, <span class="co"># pareja sin hijes</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">3</span>, <span class="co"># mono con hijes</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="dv">4</span>, <span class="co"># mono con hijes + fam</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">5</span>, <span class="co"># pareja sin hijes + fam</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">6</span>, <span class="co"># pareja con hijes + fam</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">7</span>, <span class="co"># uni</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  parent1d_5 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">~</span> <span class="dv">8</span> <span class="co">#compuesto </span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span> </span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(tipo_hog)) <span class="sc">%&gt;%</span> </span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"parent1d"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8,723 × 8
+   parent1d parent1d_1 parent1d_2 parent1d_3 parent1d_4 parent1d_5 parent1d_6
+   &lt;chr&gt;         &lt;int&gt;      &lt;int&gt;      &lt;int&gt;      &lt;int&gt;      &lt;int&gt;      &lt;int&gt;
+ 1 1                 1          0          0          0          0          1
+ 2 6                 1          0          0          0          0          1
+ 3 1                 1          0          0          0          0          1
+ 4 6                 1          0          0          0          0          1
+ 5 1                 1          0          0          0          0          4
+ 6 6                 1          0          0          0          0          4
+ 7 6                 1          0          0          0          0          4
+ 8 6                 1          0          0          0          0          4
+ 9 6                 1          0          0          0          0          4
+10 1                 1          0          0          0          0          1
+# ℹ 8,713 more rows
+# ℹ 1 more variable: parent1d_7 &lt;int&gt;</code></pre>
+</div>
+</div>
+<p>Asi me doy cuenta de qué arreglo falta: faltan jefes solos(as) que viven con otros miembros familiares</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tipo_hog =</span> <span class="fu">case_when</span>(</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="co"># pareja con hijes</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">2</span>, <span class="co"># pareja sin hijes</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">3</span>, <span class="co"># mono con hijes</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="dv">4</span>, <span class="co"># mono con hijes + fam</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">&gt;=</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">5</span>, <span class="co"># jefe + fam</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">6</span>, <span class="co"># pareja sin hijes + fam</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">7</span>, <span class="co"># pareja con hijes + fam</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">8</span>, <span class="co"># uni</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>  parent1d_5 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">~</span> <span class="dv">9</span> <span class="co">#compuesto </span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(tipo_hog)) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"parent1d"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 8
+# ℹ 8 variables: parent1d &lt;chr&gt;, parent1d_1 &lt;int&gt;, parent1d_2 &lt;int&gt;,
+#   parent1d_3 &lt;int&gt;, parent1d_4 &lt;int&gt;, parent1d_5 &lt;int&gt;, parent1d_6 &lt;int&gt;,
+#   parent1d_7 &lt;int&gt;</code></pre>
+</div>
+</div>
+<p>Hoy sí ya tenemos nuestra variable</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&lt;&gt;%</span> </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tipo_hog =</span> <span class="fu">case_when</span>(</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="co"># pareja con hijes</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">2</span>, <span class="co"># pareja sin hijes</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">3</span>, <span class="co"># mono con hijes</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="dv">4</span>, <span class="co"># mono con hijes + fam</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">&gt;=</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">5</span>, <span class="co"># jefe + fam</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">6</span>, <span class="co"># pareja sin hijes + fam</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6 <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">7</span>, <span class="co"># pareja con hijes + fam</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>  parent1d_2 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> parent1d_3<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_5<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> parent1d_6<span class="sc">==</span><span class="dv">0</span> <span class="sc">~</span> <span class="dv">8</span>, <span class="co"># uni</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>  parent1d_5 <span class="sc">&gt;</span>  <span class="dv">0</span> <span class="sc">~</span> <span class="dv">9</span> <span class="co">#compuesto </span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>  )) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>En esta encuesta también tenemos una bateria de tiempo. Vamos a hacer algunas sumatorias de tiempo</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hor_1<span class="sc">:</span>usotiempo8)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 309,684 × 24
+   hor_1 min_1 usotiempo1 hor_2 min_2 usotiempo2 hor_3 min_3 usotiempo3 hor_4
+   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;dbl&gt;
+ 1    NA    NA "9"           NA    NA "9"           NA    NA "9"           NA
+ 2    48     0 ""            NA    NA "9"           NA    NA "9"            2
+ 3    NA    NA "9"           35     0 ""            NA    NA "9"           NA
+ 4    40     0 ""            NA    NA "9"           NA    NA "9"           NA
+ 5    12     0 ""             6     0 ""            NA    NA "9"           NA
+ 6    68     0 ""            NA    NA "9"           NA    NA "9"           NA
+ 7    NA    NA "9"           NA    NA "9"           15     0 ""            NA
+ 8    50     0 ""             7     0 ""            NA    NA "9"           NA
+ 9    NA    NA "9"           NA    NA "9"           NA    NA "9"           NA
+10    NA    NA "9"           NA    NA "9"           NA    NA "9"           NA
+# ℹ 309,674 more rows
+# ℹ 14 more variables: min_4 &lt;dbl&gt;, usotiempo4 &lt;chr&gt;, hor_5 &lt;dbl&gt;, min_5 &lt;dbl&gt;,
+#   usotiempo5 &lt;chr&gt;, hor_6 &lt;dbl&gt;, min_6 &lt;dbl&gt;, usotiempo6 &lt;chr&gt;, hor_7 &lt;dbl&gt;,
+#   min_7 &lt;dbl&gt;, usotiempo7 &lt;chr&gt;, hor_8 &lt;dbl&gt;, min_8 &lt;dbl&gt;, usotiempo8 &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p>En esta base tenemos valores no para todas la persona del hogar… Y además si ponen 9, significa que no lo hizo.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>time_use<span class="ot">&lt;-</span>poblacion2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(folioviv, foliohog, numren, hor_1<span class="sc">:</span>usotiempo8)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Vamos a hacer una base larga que tiene una línea por actividad para cada individuo (309684*8)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>time_use_long <span class="ot">&lt;-</span> time_use <span class="sc">%&gt;%</span> </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span><span class="fu">c</span>(folioviv,foliohog, numren ),</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">".value"</span>, <span class="st">"act"</span>),</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">names_pattern =</span> <span class="st">"(.*)(.)"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(time_use_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 7
+  folioviv   foliohog numren act    hor_  min_ usotiempo
+  &lt;chr&gt;      &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    
+1 0100005002 1        01     1        NA    NA "9"      
+2 0100005002 1        01     2        NA    NA "9"      
+3 0100005002 1        01     3        NA    NA "9"      
+4 0100005002 1        01     4        NA    NA "9"      
+5 0100005002 1        01     5        NA    NA "9"      
+6 0100005002 1        01     6         3     0 ""       </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>time_use_long <span class="sc">%&lt;&gt;%</span> </span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tiempo=</span><span class="fu">case_when</span>(</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    usotiempo<span class="sc">==</span><span class="st">"9"</span> <span class="sc">~</span> <span class="dv">0</span>, </span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>    usotiempo<span class="sc">==</span><span class="st">"8"</span> <span class="sc">~</span> <span class="cn">NA</span>, </span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    usotiempo<span class="sc">!=</span><span class="st">"9"</span> <span class="sc">~</span> hor_<span class="sc">*</span><span class="dv">60</span> <span class="sc">+</span> min_</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tiempo=</span>tiempo<span class="sc">/</span><span class="dv">60</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Hoy volveremos a tener una base donde tenemos el tiempo en horas para cada individuo, con <code>pivot_wider()</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>time_use_long <span class="sc">%&gt;%</span> </span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(folioviv, foliohog, numren, act, tiempo) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> act,</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">names_prefix =</span> <span class="st">"tiempo_"</span>,</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> tiempo) <span class="sc">%&gt;%</span> </span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total_tiempo=</span><span class="fu">rowSums</span>(<span class="fu">pick</span>(tiempo_1<span class="sc">:</span>tiempo_8))) <span class="ot">-&gt;</span> time_use</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Hoy hacemos un <em>join</em></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>poblacion2022 <span class="sc">%&lt;&gt;%</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(time_use)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Joining with `by = join_by(folioviv, foliohog, numren)`</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(poblacion2022)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] "folioviv"     "foliohog"     "numren"       "parentesco"   "sexo"        
+  [6] "edad"         "madre_hog"    "madre_id"     "padre_hog"    "padre_id"    
+ [11] "disc_camin"   "disc_ver"     "disc_brazo"   "disc_apren"   "disc_oir"    
+ [16] "disc_vest"    "disc_habla"   "disc_acti"    "cau_camin"    "cau_ver"     
+ [21] "cau_brazo"    "cau_apren"    "cau_oir"      "cau_vest"     "cau_habla"   
+ [26] "cau_acti"     "hablaind"     "lenguaind"    "hablaesp"     "comprenind"  
+ [31] "etnia"        "alfabetism"   "asis_esc"     "nivel"        "grado"       
+ [36] "tipoesc"      "tiene_b"      "otorg_b"      "forma_b"      "tiene_c"     
+ [41] "otorg_c"      "forma_c"      "nivelaprob"   "gradoaprob"   "antec_esc"   
+ [46] "residencia"   "edo_conyug"   "pareja_hog"   "conyuge_id"   "segsoc"      
+ [51] "ss_aa"        "ss_mm"        "redsoc_1"     "redsoc_2"     "redsoc_3"    
+ [56] "redsoc_4"     "redsoc_5"     "redsoc_6"     "hor_1"        "min_1"       
+ [61] "usotiempo1"   "hor_2"        "min_2"        "usotiempo2"   "hor_3"       
+ [66] "min_3"        "usotiempo3"   "hor_4"        "min_4"        "usotiempo4"  
+ [71] "hor_5"        "min_5"        "usotiempo5"   "hor_6"        "min_6"       
+ [76] "usotiempo6"   "hor_7"        "min_7"        "usotiempo7"   "hor_8"       
+ [81] "min_8"        "usotiempo8"   "pop_insabi"   "atemed"       "inst_1"      
+ [86] "inst_2"       "inst_3"       "inst_4"       "inst_5"       "inst_6"      
+ [91] "inscr_1"      "inscr_2"      "inscr_3"      "inscr_4"      "inscr_5"     
+ [96] "inscr_6"      "inscr_7"      "inscr_8"      "prob_anio"    "prob_mes"    
+[101] "prob_sal"     "aten_sal"     "servmed_1"    "servmed_2"    "servmed_3"   
+[106] "servmed_4"    "servmed_5"    "servmed_6"    "servmed_7"    "servmed_8"   
+[111] "servmed_9"    "servmed_10"   "servmed_11"   "servmed_12"   "hh_lug"      
+[116] "mm_lug"       "hh_esp"       "mm_esp"       "pagoaten_1"   "pagoaten_2"  
+[121] "pagoaten_3"   "pagoaten_4"   "pagoaten_5"   "pagoaten_6"   "pagoaten_7"  
+[126] "noatenc_1"    "noatenc_2"    "noatenc_3"    "noatenc_4"    "noatenc_5"   
+[131] "noatenc_6"    "noatenc_7"    "noatenc_8"    "noatenc_9"    "noatenc_10"  
+[136] "noatenc_11"   "noatenc_12"   "noatenc_13"   "noatenc_14"   "noatenc_15"  
+[141] "noatenc_16"   "norecib_1"    "norecib_2"    "norecib_3"    "norecib_4"   
+[146] "norecib_5"    "norecib_6"    "norecib_7"    "norecib_8"    "norecib_9"   
+[151] "norecib_10"   "norecib_11"   "norecib_12"   "razon_1"      "razon_2"     
+[156] "razon_3"      "razon_4"      "razon_5"      "razon_6"      "razon_7"     
+[161] "razon_8"      "razon_9"      "razon_10"     "razon_11"     "diabetes"    
+[166] "pres_alta"    "peso"         "segvol_1"     "segvol_2"     "segvol_3"    
+[171] "segvol_4"     "segvol_5"     "segvol_6"     "segvol_7"     "hijos_viv"   
+[176] "hijos_mue"    "hijos_sob"    "trabajo_mp"   "motivo_aus"   "act_pnea1"   
+[181] "act_pnea2"    "num_trabaj"   "c_futuro"     "ct_futuro"    "entidad"     
+[186] "est_dis"      "upm"          "factor"       "escoacum"     "parent1d"    
+[191] "parent1d_1"   "parent1d_2"   "parent1d_3"   "parent1d_4"   "parent1d_5"  
+[196] "parent1d_6"   "parent1d_7"   "tipo_hog"     "tiempo_1"     "tiempo_2"    
+[201] "tiempo_3"     "tiempo_4"     "tiempo_5"     "tiempo_6"     "tiempo_7"    
+[206] "tiempo_8"     "total_tiempo"</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="tasas-de-crecimiento" class="level2">
+<h2 class="anchored" data-anchor-id="tasas-de-crecimiento">Tasas de crecimiento</h2>
+<section id="fechas-censales-y-tasas-de-crecimiento" class="level3">
+<h3 class="anchored" data-anchor-id="fechas-censales-y-tasas-de-crecimiento">Fechas censales y tasas de crecimiento</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>censos <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"datos/censos.xlsx"</span>, </span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">col_types =</span> <span class="fu">c</span>(<span class="st">"numeric"</span>,<span class="st">"date"</span>, <span class="st">"numeric"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Un elemento fundamental es encontrar los periodos intercensales en años. Los censos tienen diferentes fechas.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>censos<span class="ot">&lt;-</span>censos <span class="sc">%&gt;%</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">dias =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="fu">diff</span>(fecha))) <span class="sc">%&gt;%</span> </span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">n=</span>dias<span class="sc">/</span><span class="dv">365</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>  clean_names</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>censos  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13 × 5
+     ano fecha               poblacion  dias     n
+   &lt;dbl&gt; &lt;dttm&gt;                  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+ 1  1900 1900-10-28 00:00:00  13607272    NA NA   
+ 2  1910 1910-10-27 00:00:00  15160369  3651 10.0 
+ 3  1921 1921-10-20 00:00:00  14334780  4011 11.0 
+ 4  1930 1930-05-15 00:00:00  16552722  3129  8.57
+ 5  1940 1940-03-06 00:00:00  19653552  3583  9.82
+ 6  1950 1950-06-06 00:00:00  25791017  3744 10.3 
+ 7  1960 1960-06-08 00:00:00  34923129  3655 10.0 
+ 8  1970 1970-01-28 00:00:00  48225238  3521  9.65
+ 9  1980 1980-06-04 00:00:00  66846833  3780 10.4 
+10  1990 1990-03-12 00:00:00  81249645  3568  9.78
+11  2000 2000-02-14 00:00:00  97483412  3626  9.93
+12  2010 2010-06-12 00:00:00 112336538  3771 10.3 
+13  2020 2020-03-15 00:00:00 126014024  3564  9.76</code></pre>
+</div>
+</div>
+<p>Con esta base ya podemos ir calculando diferentes tipos de crecimiento básicos.</p>
+</section>
+<section id="ritmo" class="level3">
+<h3 class="anchored" data-anchor-id="ritmo">Ritmo</h3>
+<p><span class="math display">\[ ritmo=\frac{P_{t+n}}{P_t} \]</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>censos<span class="ot">&lt;-</span>censos <span class="sc">%&gt;%</span> </span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">ritmo =</span> poblacion<span class="sc">/</span><span class="fu">lag</span>(poblacion))</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>censos</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13 × 6
+     ano fecha               poblacion  dias     n  ritmo
+   &lt;dbl&gt; &lt;dttm&gt;                  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+ 1  1900 1900-10-28 00:00:00  13607272    NA NA    NA    
+ 2  1910 1910-10-27 00:00:00  15160369  3651 10.0   1.11 
+ 3  1921 1921-10-20 00:00:00  14334780  4011 11.0   0.946
+ 4  1930 1930-05-15 00:00:00  16552722  3129  8.57  1.15 
+ 5  1940 1940-03-06 00:00:00  19653552  3583  9.82  1.19 
+ 6  1950 1950-06-06 00:00:00  25791017  3744 10.3   1.31 
+ 7  1960 1960-06-08 00:00:00  34923129  3655 10.0   1.35 
+ 8  1970 1970-01-28 00:00:00  48225238  3521  9.65  1.38 
+ 9  1980 1980-06-04 00:00:00  66846833  3780 10.4   1.39 
+10  1990 1990-03-12 00:00:00  81249645  3568  9.78  1.22 
+11  2000 2000-02-14 00:00:00  97483412  3626  9.93  1.20 
+12  2010 2010-06-12 00:00:00 112336538  3771 10.3   1.15 
+13  2020 2020-03-15 00:00:00 126014024  3564  9.76  1.12 </code></pre>
+</div>
+</div>
+</section>
+<section id="crecimiento" class="level3">
+<h3 class="anchored" data-anchor-id="crecimiento">Crecimiento</h3>
+<p><span class="math display">\[ c=\frac{P_{t+n}-{P_t}}{P_t} =\frac{P_{t+n}}{P_t}-1 \]</span></p>
+<p>Básicamente es el ritmo menos 1</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>censos<span class="ot">&lt;-</span>censos <span class="sc">%&gt;%</span> </span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">c =</span> ritmo<span class="dv">-1</span>)</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>censos</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13 × 7
+     ano fecha               poblacion  dias     n  ritmo       c
+   &lt;dbl&gt; &lt;dttm&gt;                  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+ 1  1900 1900-10-28 00:00:00  13607272    NA NA    NA     NA     
+ 2  1910 1910-10-27 00:00:00  15160369  3651 10.0   1.11   0.114 
+ 3  1921 1921-10-20 00:00:00  14334780  4011 11.0   0.946 -0.0545
+ 4  1930 1930-05-15 00:00:00  16552722  3129  8.57  1.15   0.155 
+ 5  1940 1940-03-06 00:00:00  19653552  3583  9.82  1.19   0.187 
+ 6  1950 1950-06-06 00:00:00  25791017  3744 10.3   1.31   0.312 
+ 7  1960 1960-06-08 00:00:00  34923129  3655 10.0   1.35   0.354 
+ 8  1970 1970-01-28 00:00:00  48225238  3521  9.65  1.38   0.381 
+ 9  1980 1980-06-04 00:00:00  66846833  3780 10.4   1.39   0.386 
+10  1990 1990-03-12 00:00:00  81249645  3568  9.78  1.22   0.215 
+11  2000 2000-02-14 00:00:00  97483412  3626  9.93  1.20   0.200 
+12  2010 2010-06-12 00:00:00 112336538  3771 10.3   1.15   0.152 
+13  2020 2020-03-15 00:00:00 126014024  3564  9.76  1.12   0.122 </code></pre>
+</div>
+</div>
+</section>
+<section id="crecimiento-aritmético" class="level3">
+<h3 class="anchored" data-anchor-id="crecimiento-aritmético">Crecimiento aritmético</h3>
+<p><span class="math display">\[ r_a=\frac{P_{t+n}-{P_t}}{n*P_t} =\frac{c}n \]</span> Básicamente es el crecimiento entre el periodo intercensal.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>censos<span class="ot">&lt;-</span>censos <span class="sc">%&gt;%</span> </span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">ra =</span> c<span class="sc">/</span>n)</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>censos</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13 × 8
+     ano fecha               poblacion  dias     n  ritmo       c       ra
+   &lt;dbl&gt; &lt;dttm&gt;                  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+ 1  1900 1900-10-28 00:00:00  13607272    NA NA    NA     NA      NA      
+ 2  1910 1910-10-27 00:00:00  15160369  3651 10.0   1.11   0.114   0.0114 
+ 3  1921 1921-10-20 00:00:00  14334780  4011 11.0   0.946 -0.0545 -0.00496
+ 4  1930 1930-05-15 00:00:00  16552722  3129  8.57  1.15   0.155   0.0180 
+ 5  1940 1940-03-06 00:00:00  19653552  3583  9.82  1.19   0.187   0.0191 
+ 6  1950 1950-06-06 00:00:00  25791017  3744 10.3   1.31   0.312   0.0304 
+ 7  1960 1960-06-08 00:00:00  34923129  3655 10.0   1.35   0.354   0.0354 
+ 8  1970 1970-01-28 00:00:00  48225238  3521  9.65  1.38   0.381   0.0395 
+ 9  1980 1980-06-04 00:00:00  66846833  3780 10.4   1.39   0.386   0.0373 
+10  1990 1990-03-12 00:00:00  81249645  3568  9.78  1.22   0.215   0.0220 
+11  2000 2000-02-14 00:00:00  97483412  3626  9.93  1.20   0.200   0.0201 
+12  2010 2010-06-12 00:00:00 112336538  3771 10.3   1.15   0.152   0.0147 
+13  2020 2020-03-15 00:00:00 126014024  3564  9.76  1.12   0.122   0.0125 </code></pre>
+</div>
+</div>
+</section>
+<section id="crecimiento-geométrico" class="level3">
+<h3 class="anchored" data-anchor-id="crecimiento-geométrico">Crecimiento geométrico</h3>
+<p><span class="math display">\[ r_g=\sqrt[n]\frac{P_{t+n}}{{P_t}}-1 \]</span> Es la raíz n-ésima del ritmo menos 1</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>censos<span class="ot">&lt;-</span>censos <span class="sc">%&gt;%</span> </span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">rg =</span> ritmo<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span>n)<span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>censos</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13 × 9
+     ano fecha               poblacion  dias     n  ritmo       c       ra
+   &lt;dbl&gt; &lt;dttm&gt;                  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+ 1  1900 1900-10-28 00:00:00  13607272    NA NA    NA     NA      NA      
+ 2  1910 1910-10-27 00:00:00  15160369  3651 10.0   1.11   0.114   0.0114 
+ 3  1921 1921-10-20 00:00:00  14334780  4011 11.0   0.946 -0.0545 -0.00496
+ 4  1930 1930-05-15 00:00:00  16552722  3129  8.57  1.15   0.155   0.0180 
+ 5  1940 1940-03-06 00:00:00  19653552  3583  9.82  1.19   0.187   0.0191 
+ 6  1950 1950-06-06 00:00:00  25791017  3744 10.3   1.31   0.312   0.0304 
+ 7  1960 1960-06-08 00:00:00  34923129  3655 10.0   1.35   0.354   0.0354 
+ 8  1970 1970-01-28 00:00:00  48225238  3521  9.65  1.38   0.381   0.0395 
+ 9  1980 1980-06-04 00:00:00  66846833  3780 10.4   1.39   0.386   0.0373 
+10  1990 1990-03-12 00:00:00  81249645  3568  9.78  1.22   0.215   0.0220 
+11  2000 2000-02-14 00:00:00  97483412  3626  9.93  1.20   0.200   0.0201 
+12  2010 2010-06-12 00:00:00 112336538  3771 10.3   1.15   0.152   0.0147 
+13  2020 2020-03-15 00:00:00 126014024  3564  9.76  1.12   0.122   0.0125 
+# ℹ 1 more variable: rg &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="crecimiento-exponencial" class="level3">
+<h3 class="anchored" data-anchor-id="crecimiento-exponencial">Crecimiento exponencial</h3>
+<p><span class="math display">\[ r=\frac{ln\frac{P_{t+n}}{{P_t}}}n\]</span></p>
+<p>Básicamente es logaritmo del ritmo entre n</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>censos<span class="ot">&lt;-</span>censos <span class="sc">%&gt;%</span> </span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">r =</span> <span class="fu">log</span>(ritmo)<span class="sc">/</span>n)</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>censos</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13 × 10
+     ano fecha               poblacion  dias     n  ritmo       c       ra
+   &lt;dbl&gt; &lt;dttm&gt;                  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+ 1  1900 1900-10-28 00:00:00  13607272    NA NA    NA     NA      NA      
+ 2  1910 1910-10-27 00:00:00  15160369  3651 10.0   1.11   0.114   0.0114 
+ 3  1921 1921-10-20 00:00:00  14334780  4011 11.0   0.946 -0.0545 -0.00496
+ 4  1930 1930-05-15 00:00:00  16552722  3129  8.57  1.15   0.155   0.0180 
+ 5  1940 1940-03-06 00:00:00  19653552  3583  9.82  1.19   0.187   0.0191 
+ 6  1950 1950-06-06 00:00:00  25791017  3744 10.3   1.31   0.312   0.0304 
+ 7  1960 1960-06-08 00:00:00  34923129  3655 10.0   1.35   0.354   0.0354 
+ 8  1970 1970-01-28 00:00:00  48225238  3521  9.65  1.38   0.381   0.0395 
+ 9  1980 1980-06-04 00:00:00  66846833  3780 10.4   1.39   0.386   0.0373 
+10  1990 1990-03-12 00:00:00  81249645  3568  9.78  1.22   0.215   0.0220 
+11  2000 2000-02-14 00:00:00  97483412  3626  9.93  1.20   0.200   0.0201 
+12  2010 2010-06-12 00:00:00 112336538  3771 10.3   1.15   0.152   0.0147 
+13  2020 2020-03-15 00:00:00 126014024  3564  9.76  1.12   0.122   0.0125 
+# ℹ 2 more variables: rg &lt;dbl&gt;, r &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>Este crecimiento es el más utilizado.</p>
+<p>Podemos graficar los diferentes crecimientos, será más fácil si cambiamos el formato</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>censos <span class="sc">%&gt;%</span> </span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(ano, ra, rg, r)) <span class="sc">%&gt;%</span> </span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>ano, <span class="at">names_to =</span> <span class="st">"tipo"</span>, <span class="at">values_to =</span> <span class="st">"crecimiento"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 39 × 3
+     ano tipo  crecimiento
+   &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt;
+ 1  1900 ra       NA      
+ 2  1900 rg       NA      
+ 3  1900 r        NA      
+ 4  1910 ra        0.0114 
+ 5  1910 rg        0.0109 
+ 6  1910 r         0.0108 
+ 7  1921 ra       -0.00496
+ 8  1921 rg       -0.00508
+ 9  1921 r        -0.00510
+10  1930 ra        0.0180 
+# ℹ 29 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>censos <span class="sc">%&gt;%</span> </span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(ano, ra, rg, r)) <span class="sc">%&gt;%</span> </span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>ano, <span class="at">names_to =</span> <span class="st">"tipo"</span>, <span class="at">values_to =</span> <span class="st">"crecimiento"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(ano,crecimiento, <span class="at">group=</span>tipo, <span class="at">color=</span>tipo)) <span class="sc">+</span> </span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 3 rows containing missing values (`geom_line()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="P14_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Con estas tasas de crecimiento también podemos hacer estimaciones de tiempo y de poblaciones en fechas específicas.</p>
+</section>
+<section id="proyeccion" class="level3">
+<h3 class="anchored" data-anchor-id="proyeccion">Proyeccion</h3>
+<p><span class="math display">\[ P_{t+n}= P_t * e^{nr} \]</span> Vamos a proyectar la población al primero de julio de 2009</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>n<span class="ot">&lt;-</span><span class="fu">difftime</span>(<span class="fu">as.Date</span>(<span class="st">"2009-07-1"</span>),</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.Date</span>(<span class="st">"2000-02-14"</span>))</span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>n</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Time difference of 3425 days</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>n<span class="ot">&lt;-</span><span class="fu">as.numeric</span>(n<span class="sc">/</span><span class="dv">365</span>)</span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>n</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 9.383562</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>ptn<span class="ot">=</span>censos[<span class="dv">11</span>,<span class="st">"poblacion"</span>]<span class="sc">*</span><span class="fu">exp</span>(n<span class="sc">*</span>censos[<span class="dv">12</span>,<span class="dv">10</span>])</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(ptn) <span class="co"># para ver los decimales</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "110884271.797442"</code></pre>
+</div>
+</div>
+</section>
+<section id="tiempo" class="level3">
+<h3 class="anchored" data-anchor-id="tiempo">Tiempo</h3>
+<p><span class="math display">\[ n=\frac{ln\frac{P_{t+n}}{{P_t}}}r\]</span></p>
+<p>¿Cuánto tiempo tardaría en duplicarse la población del último censo?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>n_calc<span class="ot">&lt;-</span><span class="fu">log</span>(<span class="dv">2</span><span class="sc">*</span>censos[<span class="dv">12</span>,<span class="st">"poblacion"</span>]<span class="sc">/</span>censos[<span class="dv">12</span>,<span class="st">"poblacion"</span>])<span class="sc">/</span>censos[<span class="dv">12</span>,<span class="st">"r"</span>]</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>n_calc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  poblacion
+1  50.49647</code></pre>
+</div>
+</div>
+<p>¿En qué fecha se llegaría ese valor?</p>
+<p>Con el paquete {lubridate}, una maravilla para el uso de fechas. Nos da más control</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>lubridate<span class="sc">::</span><span class="fu">ymd</span>(<span class="st">"2010/06/12"</span>) <span class="sc">+</span> lubridate<span class="sc">::</span><span class="fu">days</span>(<span class="fu">round</span>(n_calc<span class="sc">*</span><span class="dv">365</span>,<span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2060-11-27"</code></pre>
+</div>
+</div>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
